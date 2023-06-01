@@ -13,6 +13,7 @@ class SQLStatement:
     query_tag_type2 = text("select id, name from eoc_goods_tag where facet_id=:facet_id order by id;")
     query_spu_id = text("select id from eoc_goods_spu where market_hash_name=:market_hash_name;")
     insert_spu_tag = text("INSERT INTO eoc_goods_spu_tag (spu_id, tag_id) VALUES (:spu_id, :tag_id);")
+    query_spu_tag = text("SELECT id FROM eoc_goods_spu_tag WHERE spu_id=:spu_id AND tag_id=:tag_id;")
 
     select_eoc_goods_facet_by_name = "select id from eoc_goods_facet where name = %s;"
     insert_eoc_goods_facet = "INSERT INTO eoc_goods_facet (name, localized_name) VALUES (%s,%s);"
@@ -29,7 +30,7 @@ class SQLStatement:
     query_tag = text("select localized_name from eoc_goods_tag where facet_id=15;")
     query_tag_by_localized_name = text("select id from eoc_goods_tag where localized_name=:localized_name")
     query_tag_by_name = text("select id from eoc_goods_tag where name=:name")
-    query_spu_tag = text("select id from eoc_goods_spu_tag where spu_id=:spu_id and tag_id=:tag_id;")
+    # query_spu_tag = text("select id from eoc_goods_spu_tag where spu_id=:spu_id and tag_id=:tag_id;")
     update_spu_desc = text('UPDATE eoc_goods_spu SET descriptions=:descriptions WHERE id=:id and descriptions = ""')
     update_spu_icon = text(
         'UPDATE eoc_goods_spu SET icon_url_large=:icon_url_large where id=:id and icon_url_large ="";')

@@ -150,9 +150,10 @@ def handler_weapon_asset(market_name: str) -> tuple[str, str]:
     else:
         weapon: str = weapon_or_quality
 
-    skin_and_appear: str = _compose_name_array[1].strip()
-    _index: int = skin_and_appear.rfind("(")
-    if _index != -1:
-        appearance: str = skin_and_appear[_index + 1:-1]  # 外观
+    if len(_compose_name_array) > 1:
+        skin_and_appear: str = _compose_name_array[1].strip()
+        _index: int = skin_and_appear.rfind("(")
+        if _index != -1:
+            appearance: str = skin_and_appear[_index + 1:-1]  # 外观
 
     return weapon, appearance

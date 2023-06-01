@@ -22,12 +22,13 @@ def insert_spu_tag_by_localized_name(spu_id: int, localized_name: str):
     with engine.connect() as connection:
         cursor = connection.execute(SQLStatement.query_tag_by_localized_name, [{"localized_name": localized_name}])
         result = cursor.fetchone()
-        tag_id: int = int(result[0])
-    with engine.connect() as connection:
-        cursor = connection.execute(SQLStatement.query_spu_tag, [{"spu_id": spu_id, "tag_id": tag_id}])
-        result = cursor.fetchone()
-        if not result:
-            connection.execute(SQLStatement.insert_spu_tag, [{"spu_id": spu_id, "tag_id": tag_id}])
+        tag_id: int = int(result[0]) if result else None
+    if tag_id:
+        with engine.connect() as connection:
+            cursor = connection.execute(SQLStatement.query_spu_tag, [{"spu_id": spu_id, "tag_id": tag_id}])
+            result = cursor.fetchone()
+            if not result:
+                connection.execute(SQLStatement.insert_spu_tag, [{"spu_id": spu_id, "tag_id": tag_id}])
 
 
 def insert_spu_tag_by_name(spu_id: int, name: str):
@@ -142,7 +143,7 @@ if __name__ == '__main__':
         results: list[tuple[int, str]] = cursor.fetchall()
 
     for spu_id, market_hash_name in results:
-        if spu_id >= 1499:
+        if spu_id >= 19517:
             print(spu_id, market_hash_name)
             craw_steam_cargo_detail(spu_id, market_hash_name)
             time.sleep(11)

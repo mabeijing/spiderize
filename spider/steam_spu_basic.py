@@ -47,7 +47,7 @@ def craw_steam_store_cargo():
         "norender": 1
     }
 
-    index: int = 18900
+    index: int = 0
     count: int = 100
     while True:
         print(f"执行读取从第{index}开始的100条。。。")

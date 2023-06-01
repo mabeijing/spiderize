@@ -1,7 +1,6 @@
 import time
 from typing import Optional
 
-
 import requests
 from databases.mysql_utils import engine, SQLStatement
 
@@ -54,7 +53,6 @@ def craw_steam_cargo_asset(tag_id: int, extra_param: dict):
         "norender": 1
     }
     paginate_params.update(extra_param)
-    print(paginate_params)
 
     index: int = 0
     count: int = 100
@@ -69,89 +67,106 @@ def craw_steam_cargo_asset(tag_id: int, extra_param: dict):
 
         results: dict = resp.json()
         cargo_array: list[Optional[dict]] = results["results"]
+        print(f"获取的cargo长度=> {len(cargo_array)}")
         if not cargo_array:
+            time.sleep(15)
             break
 
-        print(cargo_array)
         for cargo in cargo_array:
             market_hash_name: str = cargo["asset_description"]["market_hash_name"]
             with engine.connect() as connection:
                 cursor = connection.execute(SQLStatement.query_spu_id, [{"market_hash_name": market_hash_name}])
                 result = cursor.fetchone()
             if not result:
-                return
+                print(f"{market_hash_name} 不在spu表中。跳过本次")
+                continue
             spu_id: int = result[0]
             with engine.connect() as connection:
-                connection.execute(SQLStatement.insert_spu_tag, [{"spu_id": spu_id, "tag_id": tag_id}])
-        time.sleep(30)
+                cursor = connection.execute(SQLStatement.query_spu_tag, [{"spu_id": spu_id, "tag_id": tag_id}])
+                result = cursor.fetchone()
+                print(f"关联关系spu_tag，{result}")
+                if not result:
+                    connection.execute(SQLStatement.insert_spu_tag, [{"spu_id": spu_id, "tag_id": tag_id}])
+        time.sleep(15)
         index += count
 
 
 def run():
-    # 2,ItemSet,收藏品
-    asset_items = read_item_type(2)
-    for tag_id, name in asset_items:
-        extra = {"category_730_ItemSet[]": name}
-        craw_steam_cargo_asset(tag_id, extra)
+    # # 2,ItemSet,收藏品
+    # asset_items = read_item_type(2)
+    # for tag_id, name in asset_items:
+    #     extra = {"category_730_ItemSet[]": name}
+    #     print(tag_id)
+    #     craw_steam_cargo_asset(tag_id, extra)
 
-    # 3,PatchCapsule,布章收藏品
-    asset_items = read_item_type(3)
-    for tag_id, name in asset_items:
-        extra = {"category_730_PatchCapsule[]": name}
-        craw_steam_cargo_asset(tag_id, extra)
+    # # 3,PatchCapsule,布章收藏品
+    # asset_items = read_item_type(3)
+    # for tag_id, name in asset_items:
+    #     extra = {"category_730_PatchCapsule[]": name}
+    #     print(tag_id)
+    #     craw_steam_cargo_asset(tag_id, extra)
 
-    # 4,PatchCategory,布章类型
-    asset_items = read_item_type(4)
-    for tag_id, name in asset_items:
-        extra = {"category_730_PatchCategory[]": name}
-        craw_steam_cargo_asset(tag_id, extra)
+    # # 4,PatchCategory,布章类型
+    # asset_items = read_item_type(4)
+    # for tag_id, name in asset_items:
+    #     print(tag_id)
+    #     extra = {"category_730_PatchCategory[]": name}
+    #     craw_steam_cargo_asset(tag_id, extra)
 
     # 5,ProPlayer,职业选手
-    asset_items = read_item_type(5)
-    for tag_id, name in asset_items:
-        extra = {"category_730_ProPlayer[]": name}
-        craw_steam_cargo_asset(tag_id, extra)
+    # asset_items = read_item_type(5)
+    # for tag_id, name in asset_items:
+    #     extra = {"category_730_ProPlayer[]": name}
+    #
+    #     print(tag_id)
+    #     if tag_id >= 220:
+    #         craw_steam_cargo_asset(tag_id, extra)
 
-    # 8,SprayCapsule,涂鸦收藏品
-    asset_items = read_item_type(8)
-    for tag_id, name in asset_items:
-        extra = {"category_730_SprayCapsule[]": name}
-        craw_steam_cargo_asset(tag_id, extra)
+    # # 8,SprayCapsule,涂鸦收藏品
+    # asset_items = read_item_type(8)
+    # for tag_id, name in asset_items:
+    #     extra = {"category_730_SprayCapsule[]": name}
+    #     craw_steam_cargo_asset(tag_id, extra)
+    #
+    # # 9,SprayCategory,涂鸦类型
+    # asset_items = read_item_type(9)
+    # for tag_id, name in asset_items:
+    #     extra = {"category_730_SprayCategory[]": name}
+    #     craw_steam_cargo_asset(tag_id, extra)
 
-    # 9,SprayCategory,涂鸦类型
-    asset_items = read_item_type(9)
-    for tag_id, name in asset_items:
-        extra = {"category_730_SprayCategory[]": name}
-        craw_steam_cargo_asset(tag_id, extra)
+    # # 10,SprayColorCategory,涂鸦颜色
+    # asset_items = read_item_type(10)
+    # for tag_id, name in asset_items:
+    #     extra = {"category_730_SprayColorCategory[]": name}
+    #     print(tag_id)
+    #     craw_steam_cargo_asset(tag_id, extra)
 
-    # 10,SprayColorCategory,涂鸦颜色
-    asset_items = read_item_type(10)
-    for tag_id, name in asset_items:
-        extra = {"category_730_SprayColorCategory[]": name}
-        craw_steam_cargo_asset(tag_id, extra)
+    # # 11,StickerCapsule,印花收藏品
+    # asset_items = read_item_type(11)
+    # for tag_id, name in asset_items:
+    #     extra = {"category_730_StickerCapsule[]": name}
+    #     print(tag_id)
+    #     craw_steam_cargo_asset(tag_id, extra)
 
-    # 11,StickerCapsule,印花收藏品
-    asset_items = read_item_type(11)
-    for tag_id, name in asset_items:
-        extra = {"category_730_StickerCapsule[]": name}
-        craw_steam_cargo_asset(tag_id, extra)
-
-    # 12,StickerCategory,印花类型
-    asset_items = read_item_type(12)
-    for tag_id, name in asset_items:
-        extra = {"category_730_StickerCategory[]": name}
-        craw_steam_cargo_asset(tag_id, extra)
-
-    # 13,Tournament,锦标赛
-    asset_items = read_item_type(13)
-    for tag_id, name in asset_items:
-        extra = {"category_730_Tournament[]": name}
-        craw_steam_cargo_asset(tag_id, extra)
+    # # 12,StickerCategory,印花类型
+    # asset_items = read_item_type(12)
+    # for tag_id, name in asset_items:
+    #     extra = {"category_730_StickerCategory[]": name}
+    #     print(tag_id)
+    #     craw_steam_cargo_asset(tag_id, extra)
+    #
+    # # 13,Tournament,锦标赛
+    # asset_items = read_item_type(13)
+    # for tag_id, name in asset_items:
+    #     print(tag_id)
+    #     extra = {"category_730_Tournament[]": name}
+    #     craw_steam_cargo_asset(tag_id, extra)
 
     # 14,TournamentTeam,战队
     asset_items = read_item_type(14)
     for tag_id, name in asset_items:
         extra = {"category_730_TournamentTeam[]": name}
+        print(tag_id)
         craw_steam_cargo_asset(tag_id, extra)
 
 
