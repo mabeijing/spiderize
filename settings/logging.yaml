@@ -1,0 +1,34 @@
+version: 1
+disable_existing_loggers: false
+formatters:
+    default:
+        format: "[%(asctime)-23s] - [%(name)9s] - %(levelname)s - %(message)s"
+    pycharmFormat:
+        format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+handlers:
+    consoleHandle:
+        class: logging.StreamHandler
+        level: DEBUG
+        formatter: default
+        stream: ext://sys.stdout
+
+
+    timeRotateFileHandle:
+        class: logging.handlers.TimedRotatingFileHandler
+        level: DEBUG
+        formatter: pycharmFormat
+        filename: ./logs/running.log
+        when: D
+        backupCount: 50
+        encoding: utf8
+
+loggers:
+    spiderize:
+        level: INFO
+        handlers: [ consoleHandle,timeRotateFileHandle ]
+        propagate: false
+
+root:
+    level: WARNING
+    handlers: [ consoleHandle ]

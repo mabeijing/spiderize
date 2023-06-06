@@ -1,0 +1,87 @@
+{
+  "appid": 730,
+  "name": "SprayColorCategory",
+  "localized_name": "涂鸦颜色",
+  "tags": {
+    "Tint0": {
+      "localized_name": "多色",
+      "matches": "139"
+    },
+    "Tint6": {
+      "localized_name": "草绿",
+      "matches": "91"
+    },
+    "Tint18": {
+      "localized_name": "藕色",
+      "matches": "90"
+    },
+    "Tint2": {
+      "localized_name": "血红",
+      "matches": "90"
+    },
+    "Tint3": {
+      "localized_name": "黄褐",
+      "matches": "90"
+    },
+    "Tint4": {
+      "localized_name": "灰褐",
+      "matches": "90"
+    },
+    "Tint5": {
+      "localized_name": "棕褐",
+      "matches": "90"
+    },
+    "Tint1": {
+      "localized_name": "砖红",
+      "matches": "89"
+    },
+    "Tint16": {
+      "localized_name": "丁香",
+      "matches": "89"
+    },
+    "Tint17": {
+      "localized_name": "酱紫",
+      "matches": "89"
+    },
+    "Tint10": {
+      "localized_name": "豆青",
+      "matches": "88"
+    },
+    "Tint15": {
+      "localized_name": "暗紫",
+      "matches": "88"
+    },
+    "Tint7": {
+      "localized_name": "军绿",
+      "matches": "88"
+    },
+    "Tint8": {
+      "localized_name": "深绿",
+      "matches": "88"
+    },
+    "Tint9": {
+      "localized_name": "暗绿",
+      "matches": "88"
+    },
+    "Tint19": {
+      "localized_name": "灰色",
+      "matches": "87"
+    },
+    "Tint11": {
+      "localized_name": "群青",
+      "matches": "85"
+    },
+    "Tint12": {
+      "localized_name": "黛蓝",
+      "matches": "85"
+    },
+    "Tint13": {
+      "localized_name": "靛蓝",
+      "matches": "84"
+    },
+    "Tint14": {
+      "localized_name": "纯紫",
+      "matches": "84"
+    }
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "appid": 730,
+  "name": "Weapon",
+  "localized_name": "武器",
+  "tags": {
+    "weapon_p250": {
+      "localized_name": "P250",
+      "matches": "180,660"
+    },
+    "weapon_bizon": {
+      "localized_name": "PP-野牛",
+      "matches": "167,352"
+    },
+    "weapon_mac10": {
+      "localized_name": "MAC-10",
+      "matches": "150,241"
+    },
+    "weapon_aug": {
+      "localized_name": "AUG",
+      "matches": "146,332"
+    },
+    "weapon_tec9": {
+      "localized_name": "Tec-9",
+      "matches": "132,225"
+    },
+    "weapon_mp7": {
+      "localized_name": "MP7",
+      "matches": "129,044"
+    },
+    "weapon_glock": {
+      "localized_name": "格洛克 18 型",
+      "matches": "124,570"
+    },
+    "weapon_sg556": {
+      "localized_name": "SG 553",
+      "matches": "123,534"
+    },
+    "weapon_ssg08": {
+      "localized_name": "SSG 08",
+      "matches": "123,228"
+    },
+    "weapon_revolver": {
+      "localized_name": "R8 左轮手枪",
+      "matches": "120,701"
+    },
+    "weapon_nova": {
+      "localized_name": "新星",
+      "matches": "119,437"
+    },
+    "weapon_mag7": {
+      "localized_name": "MAG-7",
+      "matches": "115,999"
+    },
+    "weapon_p90": {
+      "localized_name": "P90",
+      "matches": "112,557"
+    },
+    "weapon_ak47": {
+      "localized_name": "AK-47",
+      "matches": "112,226"
+    },
+    "weapon_mp9": {
+      "localized_name": "MP9",
+      "matches": "108,805"
+    },
+    "weapon_ump45": {
+      "localized_name": "UMP-45",
+      "matches": "107,195"
+    },
+    "weapon_g3sg1": {
+      "localized_name": "G3SG1",
+      "matches": "106,154"
+    },
+    "weapon_awp": {
+      "localized_name": "AWP",
+      "matches": "94,414"
+    },
+    "weapon_scar20": {
+      "localized_name": "SCAR-20",
+      "matches": "92,668"
+    },
+    "weapon_deagle": {
+      "localized_name": "沙漠之鹰",
+      "matches": "90,519"
+    },
+    "weapon_fiveseven": {
+      "localized_name": "FN57",
+      "matches": "90,099"
+    },
+    "weapon_elite": {
+      "localized_name": "双持贝瑞塔",
+      "matches": "88,573"
+    },
+    "weapon_sawedoff": {
+      "localized_name": "截短霰弹枪",
+      "matches": "85,537"
+    },
+    "weapon_xm1014": {
+      "localized_name": "XM1014",
+      "matches": "84,824"
+    },
+    "weapon_m4a1": {
+      "localized_name": "M4A4",
+      "matches": "82,127"
+    },
+    "weapon_famas": {
+      "localized_name": "法玛斯",
+      "matches": "75,357"
+    },
+    "weapon_galilar": {
+      "localized_name": "加利尔 AR",
+      "matches": "70,349"
+    },
+    "weapon_m4a1_silencer": {
+      "localized_name": "M4A1 消音型",
+      "matches": "70,110"
+    },
+    "weapon_hkp2000": {
+      "localized_name": "P2000",
+      "matches": "70,043"
+    },
+    "weapon_mp5sd": {
+      "localized_name": "MP5-SD",
+      "matches": "65,972"
+    },
+    "weapon_cz75a": {
+      "localized_name": "CZ75",
+      "matches": "61,478"
+    },
+    "weapon_negev": {
+      "localized_name": "内格夫",
+      "matches": "60,741"
+    },
+    "weapon_m249": {
+      "localized_name": "M249",
+      "matches": "59,678"
+    },
+    "weapon_usp_silencer": {
+      "localized_name": "USP 消音版",
+      "matches": "57,879"
+    },
+    "weapon_knife_push": {
+      "localized_name": "暗影双匕",
+      "matches": "1,472"
+    },
+    "weapon_knife_falchion": {
+      "localized_name": "弯刀",
+      "matches": "1,323"
+    },
+    "weapon_knife_gut": {
+      "localized_name": "穿肠刀",
+      "matches": "1,321"
+    },
+    "weapon_knife_gypsy_jackknife": {
+      "localized_name": "折刀",
+      "matches": "1,255"
+    },
+    "weapon_knife_survival_bowie": {
+      "localized_name": "鲍伊猎刀",
+      "matches": "1,162"
+    },
+    "weapon_knife_tactical": {
+      "localized_name": "猎杀者匕首",
+      "matches": "1,130"
+    },
+    "weapon_knife_flip": {
+      "localized_name": "折叠刀",
+      "matches": "740"
+    },
+    "weapon_bayonet": {
+      "localized_name": "刺刀",
+      "matches": "654"
+    },
+    "weapon_knife_ursus": {
+      "localized_name": "熊刀",
+      "matches": "577"
+    },
+    "weapon_knife_cord": {
+      "localized_name": "系绳匕首",
+      "matches": "546"
+    },
+    "weapon_knife_canis": {
+      "localized_name": "求生匕首",
+      "matches": "537"
+    },
+    "weapon_knife_stiletto": {
+      "localized_name": "短剑",
+      "matches": "511"
+    },
+    "weapon_knife_widowmaker": {
+      "localized_name": "锯齿爪刀",
+      "matches": "510"
+    },
+    "weapon_knife_css": {
+      "localized_name": "海豹短刀",
+      "matches": "447"
+    },
+    "weapon_knife_m9_bayonet": {
+      "localized_name": "M9 刺刀",
+      "matches": "324"
+    },
+    "weapon_knife_butterfly": {
+      "localized_name": "蝴蝶刀",
+      "matches": "322"
+    },
+    "weapon_knife_outdoor": {
+      "localized_name": "流浪者匕首",
+      "matches": "316"
+    },
+    "weapon_knife_karambit": {
+      "localized_name": "爪子刀",
+      "matches": "299"
+    },
+    "weapon_knife_skeleton": {
+      "localized_name": "骷髅匕首",
+      "matches": "249"
+    }
+  }
+}

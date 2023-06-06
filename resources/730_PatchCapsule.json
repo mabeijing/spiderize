@@ -1,0 +1,35 @@
+{
+  "appid": 730,
+  "name": "PatchCapsule",
+  "localized_name": "布章收藏品",
+  "tags": {
+    "crate_patch_pack01": {
+      "localized_name": "CS:GO布章包",
+      "matches": "22"
+    },
+    "crate_patch_pack_stockh2021_challengers_collection": {
+      "localized_name": "2021年斯德哥尔摩锦标赛挑战组布章",
+      "matches": "19"
+    },
+    "crate_patch_pack_stockh2021_contenders_collection": {
+      "localized_name": "2021年斯德哥尔摩锦标赛竞争组布章",
+      "matches": "19"
+    },
+    "crate_patch_pack_stockh2021_legends_collection": {
+      "localized_name": "2021年斯德哥尔摩锦标赛传奇组布章",
+      "matches": "19"
+    },
+    "crate_patch_pack02": {
+      "localized_name": "金·段位布章收藏品",
+      "matches": "17"
+    },
+    "crate_patch_pack03": {
+      "localized_name": "“激流大行动”布章收藏品",
+      "matches": "13"
+    },
+    "crate_patch_pack_hlalyx": {
+      "localized_name": "《半衰期：爱莉克斯》布章包",
+      "matches": "12"
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "appid": 730,
+  "name": "Tournament",
+  "localized_name": "锦标赛",
+  "tags": {
+    "Tournament21": {
+      "localized_name": "2023年 BLAST.tv 巴黎锦标赛",
+      "matches": "198,901"
+    },
+    "Tournament18": {
+      "localized_name": "2021年 PGL 斯德哥尔摩",
+      "matches": "184,000"
+    },
+    "Tournament19": {
+      "localized_name": "2022 PGL 安特卫普",
+      "matches": "130,926"
+    },
+    "Tournament20": {
+      "localized_name": "2022年 IEM 里约锦标赛",
+      "matches": "121,014"
+    },
+    "Tournament17": {
+      "localized_name": "2020 RMR",
+      "matches": "79,164"
+    },
+    "Tournament16": {
+      "localized_name": "2019年StarLadder柏林",
+      "matches": "37,252"
+    },
+    "Tournament13": {
+      "localized_name": "2018年 ELEAGUE 波士顿锦标赛",
+      "matches": "19,861"
+    },
+    "Tournament15": {
+      "localized_name": "2019 IEM 卡托维兹",
+      "matches": "19,695"
+    },
+    "Tournament14": {
+      "localized_name": "2018年 FACEIT 伦敦锦标赛",
+      "matches": "17,768"
+    },
+    "Tournament12": {
+      "localized_name": "2017年 PGL 克拉科夫锦标赛",
+      "matches": "16,937"
+    },
+    "Tournament11": {
+      "localized_name": "2017年 ELEAGUE 亚特兰大锦标赛",
+      "matches": "13,007"
+    },
+    "Tournament7": {
+      "localized_name": "2015年 ESL One 科隆锦标赛",
+      "matches": "11,362"
+    },
+    "Tournament10": {
+      "localized_name": "2016年 ESL One 科隆锦标赛",
+      "matches": "9,701"
+    },
+    "Tournament8": {
+      "localized_name": "2015 DreamHack 卢日-纳波卡锦标赛",
+      "matches": "8,914"
+    },
+    "Tournament9": {
+      "localized_name": "2016年 MLG 哥伦布锦标赛",
+      "matches": "8,763"
+    },
+    "Tournament6": {
+      "localized_name": "2015年 ESL One 卡托维兹锦标赛",
+      "matches": "6,528"
+    },
+    "Tournament4": {
+      "localized_name": "2014年 ESL One 科隆锦标赛",
+      "matches": "5,953"
+    },
+    "Tournament3": {
+      "localized_name": "2014年 EMS One 卡托维兹锦标赛",
+      "matches": "2,860"
+    },
+    "Tournament5": {
+      "localized_name": "2014年 DreamHack 冬季锦标赛",
+      "matches": "2,462"
+    },
+    "Tournament1": {
+      "localized_name": "2013年 DreamHack 冬季赛",
+      "matches": "1,927"
+    }
+  }
+}

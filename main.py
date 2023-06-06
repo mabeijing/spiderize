@@ -1,4 +1,9 @@
-from concurrent.futures import ThreadPoolExecutor
+import settings
+from spider import Spider
+
+logger = settings.get_logger()
 
 if __name__ == '__main__':
-    pass
+    logger.info("start...")
+    spider = Spider()
+    spider.gem_weapon_spu()
