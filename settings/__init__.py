@@ -36,9 +36,9 @@ def get_logger(config_yaml: str = "logging.yaml", **kwargs) -> logging.Logger:
 
 
 @lru_cache()
-def get_resources_map(name: str) -> dict[str, dict]:
+def get_sorted_resources(name: str) -> list[str]:
     tags: dict[str, dict] = json.loads(RESOURCES.joinpath(name).read_bytes())["tags"]
-    return tags
+    return sorted(tags)
 
 
 def parser(config, kwargs: dict):
@@ -68,3 +68,8 @@ def parser(config, kwargs: dict):
                 raise ValueError(f"{config} not a valid key for the {kwargs}")
             return value
     return config
+
+
+if __name__ == '__main__':
+    data = get_sorted_resources("730_Type.json")
+    print(data)

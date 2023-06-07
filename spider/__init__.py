@@ -1,12 +1,14 @@
 import re
 import time
-import requests
 from typing import Optional
+
+import requests
+import pymongo
 
 import settings
 from settings import enums
 from spider.models import MarketSPU
-import pymongo
+from scaffold.break_point import Cursor
 
 logger = settings.get_logger()
 
@@ -104,6 +106,30 @@ class MongoDB:
             if not (result.acknowledged and result.modified_count == 1):
                 logger.info(f"{condition} update $query_item.tournament_team failed.")
 
+    def update_pro_player(self, market_spu_array: list[MarketSPU]):
+        # 职业选手
+        database = self.client.get_database(settings.MONGO_DB)
+        collection = database.get_collection(settings.MONGO_COLLECTION)
+        for market_spu in market_spu_array:
+            condition = {"hash_name": market_spu.hash_name}
+            pipeline = [
+                {
+                    "$set": {
+                        "query_item.pro_player": {
+                            "$cond": {
+                                "if": {'$eq': ['$query_item.pro_player', None]},
+                                "then": market_spu.query_item.pro_player,
+                                "else": {"$concat": ['$query_item.pro_player', ' - ',
+                                                     market_spu.query_item.pro_player]}
+                            }
+                        }
+                    }
+                }
+            ]
+            result = collection.update_one(condition, pipeline)
+            if not (result.acknowledged and result.modified_count == 1):
+                logger.info(f"{condition} update $query_item.pro_player failed.")
+
     def check_duplicate_hash_name(self) -> bool:
         db = self.client.get_database("tms_db")
         collection = db.get_collection("steam_spu")
@@ -130,6 +156,7 @@ class Spider:
         self.mongo = MongoDB()
         self.result_collections: list[MarketSPU] = []
         self.counter: int = 0
+        self.cursor: Cursor = Cursor()
 
     @property
     def mongo_client(self):
@@ -209,8 +236,14 @@ class Spider:
     def query_item_set_by_type(self, query: dict):
         # 相当漫长的过长
         # 收藏品 => 武器，武器箱，探员
-        tags = settings.get_resources_map("730_ItemSet.json")  # 80次循环
-        for tag in tags:
+        tags: list[str] = settings.get_sorted_resources("730_ItemSet.json")
+        try:
+            tag_index: int = tags.index(self.cursor.current_point.item_set.localized_key)
+            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+        except ValueError:
+            tag_index = 0
+
+        for tag in tags[tag_index:]:
             logger.info(f"ItemSet => tag_{tag}")
             index = 0
             count = 100
@@ -234,8 +267,14 @@ class Spider:
     def query_tournament_by_type(self, query: dict):
         # 相当漫长的过长
         # 锦标赛 => 武器，涂鸦, 印花, 武器箱
-        tags = settings.get_resources_map("730_Tournament.json")
-        for tag in tags:
+        tags: list[str] = settings.get_sorted_resources("730_Tournament.json")
+        try:
+            tag_index: int = tags.index(self.cursor.current_point.tournament.localized_key)
+            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+        except ValueError:
+            tag_index = 0
+
+        for tag in tags[tag_index:]:
             logger.info(f"Tournament => tag_{tag}")
             index = 0
             count = 100
@@ -258,8 +297,14 @@ class Spider:
 
     def query_tournament_team_by_type(self, query: dict):
         # 战队 => 武器，印花，涂鸦，布章
-        tags = settings.get_resources_map("730_TournamentTeam.json")
-        for tag in tags:
+        tags: list[str] = settings.get_sorted_resources("730_TournamentTeam.json")
+        try:
+            tag_index: int = tags.index(self.cursor.current_point.item_set.localized_key)
+            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+        except ValueError:
+            tag_index = 0
+
+        for tag in tags[tag_index:]:
             logger.info(f"TournamentTeam => tag_{tag}")
             index = 0
             count = 100
@@ -272,7 +317,7 @@ class Spider:
                     break
 
                 for markets_spu in markets_spu_array:
-                    markets_spu.query_item.item_set = tag
+                    markets_spu.query_item.tournament_team = tag
 
                 self.mongo.update_tournament_team(markets_spu_array)
                 index += count
@@ -280,7 +325,31 @@ class Spider:
                 if len(markets_spu_array) < count:
                     break
 
-    def gem_weapon_spu(self):
+    def query_pro_player(self, query: dict):
+        # 职业选手 => 武器，印花
+        tags = settings.get_sorted_resources("730_ProPlayer.json")
+        for tag in tags:
+            logger.info(f"ProPlayer => tag_{tag}")
+            index = 0
+            count = 100
+            while True:
+                params = {"start": index, "count": count, "category_730_ProPlayer[]": f"tag_{tag}"}
+                params.update(query)
+                markets_spu_array = self.gem_market_spu(params)
+                if not markets_spu_array:
+                    logger.warning(f"查询职业选手：{tag} => 没有数据了。")
+                    break
+
+                for markets_spu in markets_spu_array:
+                    markets_spu.query_item.pro_player = tag
+
+                self.mongo.update_pro_player(markets_spu_array)
+                index += count
+
+                if len(markets_spu_array) < count:
+                    break
+
+    def gem_weapon_pistol_spu(self):
         query = {"appid": 730, "norender": 1, "category_730_Type[]": "tag_CSGO_Type_Pistol", "sort_column": "name",
                  "sort_dir": "asc"}
         self.result_collections.clear()
@@ -291,7 +360,7 @@ class Spider:
 
         # 手枪先先查询一轮。获取所有手枪可解析属性
         # 再根据 收藏品，锦标赛，战队，职业选手 依次查询修改market_spu
-        index = 0
+        index = self.cursor.current_point.csgo_type_pistol
         count = 100
         while True:
             params = {"start": index, "count": count}
@@ -323,6 +392,19 @@ class Spider:
         # 查询并更新战队
         self.query_tournament_team_by_type(query)
 
+        # 查询并更新职业选手
+        self.query_pro_player(query)
+
+    def gem_weapon_smg_spu(self):
+        pass
+
 
 if __name__ == '__main__':
     spider = Spider()
+    index = spider.cursor.current_point.csgo_type_pistol.index
+    print(index)
+
+    point = spider.cursor.current_point
+    point.csgo_type_pistol.localized_key = "888"
+    point.csgo_type_pistol.index = 700
+    spider.cursor.save(point)
