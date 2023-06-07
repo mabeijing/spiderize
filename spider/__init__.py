@@ -17,6 +17,17 @@ class MongoDB:
     def __init__(self):
         self.client = pymongo.MongoClient(settings.MONGO_URI, connect=False)
 
+    def filter_for_insert(self, market_spu_array: list[MarketSPU]) -> list[MarketSPU]:
+        database = self.client.get_database("tms_db")
+        collection = database.get_collection("steam_spu")
+        need_insert_spu_array: list[Optional[MarketSPU]] = []
+        for market_spu in market_spu_array:
+            one = collection.find_one({"hash_name": market_spu.hash_name})
+            if not one:
+                need_insert_spu_array.append(market_spu)
+        logger.info(f"查询到{len(market_spu_array)}条数据，有{len(need_insert_spu_array)}条数据需要插库。")
+        return need_insert_spu_array
+
     def insert_many(self, market_spu_array: list[MarketSPU]):
         database = self.client.get_database("tms_db")
         collection = database.get_collection("steam_spu")
@@ -26,17 +37,41 @@ class MongoDB:
         database = self.client.get_database("tms_db")
         collection = database.get_collection("steam_spu")
         for market_spu in market_spu_array:
-            condition = {"name": market_spu.name, "asset_description.classid": market_spu.asset_description.classid}
-            one = collection.find_one(condition)
-            if one:
-                logger.warning(one)
+            condition = {"hash_name": market_spu.hash_name}
+            pipeline = [
+                {
+                    "$set": {
+                        "query_item.item_set": {
+                            "$cond": {
+                                "if": {'$eq': ['$query_item.item_set', None]},
+                                "then": market_spu.query_item.item_set,
+                                "else": {"$concat": ['$query_item.item_set', ' - ', market_spu.query_item.item_set]}
+                            }
+                        }
+                    }
+                }
+            ]
+            result = collection.update_one(condition, pipeline)
+            if result.upserted_id is None:
+                logger.warning(f"{condition} not found in mongo.")
             else:
-                logger.error(condition)
-            result = collection.update_one(condition, {"$set": {"query_item.item_set": market_spu.query_item.item_set}})
-            # if result.upserted_id is None:
-            #     logger.warning(f"{condition} not found in mongo.")
-            # else:
-            #     logger.info(f"{condition} update {result.upserted_id} success")
+                logger.info(f"{condition} update {result.upserted_id} success")
+
+    def check_duplicate_hash_name(self) -> bool:
+        db = self.client.get_database("tms_db")
+        collection = db.get_collection("steam_spu")
+        pipeline = [
+            {'$match': {'hash_name': {'$exists': True}}},
+            {'$group': {'_id': "$hash_name", 'count': {'$sum': 1}}},
+            {'$match': {'count': {"$gte": 2}}}
+        ]
+        cursor = collection.aggregate(pipeline)
+
+        resp: list[Optional[dict]] = list(cursor)
+        if resp:
+            logger.warning(f"存在重复数据 => {resp}")
+            return False
+        return True
 
 
 class Spider:
@@ -147,7 +182,8 @@ class Spider:
             self.mongo.update_item_set(markets_spu_array)
 
     def gem_weapon_spu(self):
-        query = {"appid": 730, "norender": 1, "category_730_Type[]": "tag_CSGO_Type_Pistol"}
+        query = {"appid": 730, "norender": 1, "category_730_Type[]": "tag_CSGO_Type_Pistol", "sort_column": "name",
+                 "sort_dir": "asc"}
         self.result_collections.clear()
         self.counter = 0
         # 查询条件必须包含匕首，手枪...
@@ -164,14 +200,21 @@ class Spider:
             markets_spu = self.gem_market_spu(params)
             if not markets_spu:
                 break
-            self.parser_market_spu(markets_spu, weapon=True, exterior=True)
-            # self.query_item_set_by_type(query)
-            self.mongo.insert_many(markets_spu)
+
+            # 查询出数据库中没有的数据
+            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+
+            # 解析属性
+            self.parser_market_spu(markets_spu_array, weapon=True, exterior=True)
+
+            # 批量插入
+            self.mongo.insert_many(markets_spu_array)
             index += count
 
-
+        # 检查是否插入了重复数据
+        if self.mongo.check_duplicate_hash_name() is False:
+            logger.error(f"本次查询的：tag_CSGO_Type_Pistol 存在重复数据")
 
 
 if __name__ == '__main__':
-    tags = settings.get_resources_map("730_ItemSet.json")
-    print(len(tags))
+    pass
