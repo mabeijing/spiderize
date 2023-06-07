@@ -17,6 +17,9 @@ RESOURCES = ROOT.joinpath("resources")
 
 MONGO_URI = "mongodb://root:example@localhost:27017"
 
+MONGO_DB = "tms_db"
+MONGO_COLLECTION = "steam_spu"
+
 
 def db_config(env="dev") -> dict:
     configuration: dict = yaml.safe_load(SETTINGS.joinpath(f"settings_{env}.yaml").read_bytes())
