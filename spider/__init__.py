@@ -20,6 +20,7 @@ class MongoDB:
     def filter_for_insert(self, market_spu_array: list[MarketSPU]) -> list[MarketSPU]:
         database = self.client.get_database("tms_db")
         collection = database.get_collection("steam_spu")
+        collection.update_many({}, [])
         need_insert_spu_array: list[Optional[MarketSPU]] = []
         for market_spu in market_spu_array:
             one = collection.find_one({"hash_name": market_spu.hash_name})
@@ -52,10 +53,34 @@ class MongoDB:
                 }
             ]
             result = collection.update_one(condition, pipeline)
-            if result.upserted_id is None:
-                logger.warning(f"{condition} not found in mongo.")
+            if result.acknowledged and result.modified_count == 1:
+                logger.info(f"{condition} update $query_item.item_set success")
             else:
-                logger.info(f"{condition} update {result.upserted_id} success")
+                logger.warning(f"{condition} not found in mongo.")
+
+    def update_tournament(self, market_spu_array: list[MarketSPU]):
+        database = self.client.get_database("tms_db")
+        collection = database.get_collection("steam_spu")
+        for market_spu in market_spu_array:
+            condition = {"hash_name": market_spu.hash_name}
+            pipeline = [
+                {
+                    "$set": {
+                        "query_item.tournament": {
+                            "$cond": {
+                                "if": {'$eq': ['$query_item.tournament', None]},
+                                "then": market_spu.query_item.tournament,
+                                "else": {"$concat": ['$query_item.tournament', ' - ', market_spu.query_item.tournament]}
+                            }
+                        }
+                    }
+                }
+            ]
+            result = collection.update_one(condition, pipeline)
+            if result.acknowledged and result.modified_count == 1:
+                logger.info(f"{condition} update $query_item.tournament success")
+            else:
+                logger.warning(f"{condition} not found in mongo.")
 
     def check_duplicate_hash_name(self) -> bool:
         db = self.client.get_database("tms_db")
@@ -167,19 +192,41 @@ class Spider:
             logger.info(f"ItemSet => tag_{tag}")
             index = 0
             count = 100
-            params = {"start": index, "count": count, "category_730_ItemSet[]": f"tag_{tag}"}
-            params.update(query)
-            markets_spu_array = self.gem_market_spu(params)
-            if not markets_spu_array:
-                break
+            while True:
+                params = {"start": index, "count": count, "category_730_ItemSet[]": f"tag_{tag}"}
+                params.update(query)
+                markets_spu_array = self.gem_market_spu(params)
+                if not markets_spu_array:
+                    logger.warning(f"查询收藏品：{tag} => 没有数据了。")
+                    break
 
-            for markets_spu in markets_spu_array:
-                if markets_spu.query_item.item_set is None:
+                for markets_spu in markets_spu_array:
                     markets_spu.query_item.item_set = tag
-                else:
-                    markets_spu.query_item.item_set += f" + {tag}"
 
-            self.mongo.update_item_set(markets_spu_array)
+                self.mongo.update_item_set(markets_spu_array)
+                index += count
+
+    def query_tournament_by_type(self, query: dict):
+        # 相当漫长的过长
+        # 锦标赛 => 武器，涂鸦, 印花, 武器箱
+        tags = settings.get_resources_map("730_Tournament.json")
+        for tag in tags:
+            logger.info(f"Tournament => tag_{tag}")
+            index = 0
+            count = 100
+            while True:
+                params = {"start": index, "count": count, "category_730_Tournament[]": f"tag_{tag}"}
+                params.update(query)
+                markets_spu_array = self.gem_market_spu(params)
+                if not markets_spu_array:
+                    logger.warning(f"查询锦标赛：{tag} => 没有数据了。")
+                    break
+
+                for markets_spu in markets_spu_array:
+                    markets_spu.query_item.tournament = tag
+
+                self.mongo.update_tournament(markets_spu_array)
+                index += count
 
     def gem_weapon_spu(self):
         query = {"appid": 730, "norender": 1, "category_730_Type[]": "tag_CSGO_Type_Pistol", "sort_column": "name",
@@ -214,6 +261,12 @@ class Spider:
         # 检查是否插入了重复数据
         if self.mongo.check_duplicate_hash_name() is False:
             logger.error(f"本次查询的：tag_CSGO_Type_Pistol 存在重复数据")
+
+        # 查询并更新收藏品。前提是有数据
+        self.query_item_set_by_type(query)
+
+        # 查询并更新锦标赛
+        self.query_tournament_by_type(query)
 
 
 if __name__ == '__main__':

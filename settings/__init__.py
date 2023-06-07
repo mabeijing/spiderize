@@ -3,6 +3,7 @@ import re
 import logging
 import logging.config
 from pathlib import Path
+from functools import lru_cache
 
 import yaml
 
@@ -28,10 +29,18 @@ def get_logger(config_yaml: str = "logging.yaml") -> logging.Logger:
     return logging.getLogger('spiderize')
 
 
+@lru_cache()
 def get_resources_map(name: str) -> dict[str, dict]:
     tags: dict[str, dict] = json.loads(RESOURCES.joinpath(name).read_bytes())["tags"]
     return tags
 
 
 if __name__ == '__main__':
-    print(db_config())
+    import time
+
+    tsp = time.time()
+    for _ in range(1000):
+        get_resources_map("730_ItemSet.json")
+
+    cost = time.time() - tsp
+    print(cost)
