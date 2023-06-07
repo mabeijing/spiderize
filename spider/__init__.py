@@ -325,4 +325,4 @@ class Spider:
 
 
 if __name__ == '__main__':
-    pass
+    spider = Spider()
