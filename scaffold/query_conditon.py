@@ -11,6 +11,8 @@ import os.path
 import requests
 from pathlib import Path
 
+import settings
+
 
 def generate_query_condition():
     url = "https://steamcommunity.com/market/search"

@@ -6,7 +6,6 @@
 
 """
 import json
-from typing import Optional
 from pydantic import BaseModel, fields
 
 import settings
@@ -74,6 +73,11 @@ class Cursor:
         with open(self.cache_file, mode="w", encoding="utf-8") as f:
             f.write(json.dumps(point.dict(), ensure_ascii=False, indent=2))
             f.flush()
+
+    def save_spray_capsule(self, spider, index):
+        point = spider.cursor.current_point
+        point.spray_capsule.index = index
+        self.save(point)
 
     def load(self) -> dict:
         with open(self.cache_file, mode="r", encoding="utf-8") as f:
