@@ -17,7 +17,7 @@ SETTINGS = ROOT.joinpath("settings")
 RESOURCES = ROOT.joinpath("resources")
 
 MONGO_URI = "mongodb://root:example@localhost:27017"
-MONGO_DB = "tms_db"
+MONGO_DB = "steam_db"
 MONGO_COLLECTION = "steam_spu"
 
 PROXY_POOL = {'http': 'http://proxy.vmware.com:3128', 'https': 'http://proxy.vmware.com:3128'}

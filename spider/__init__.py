@@ -495,8 +495,14 @@ class Spider:
 
     # 职业选手 => 武器，印花
     def query_pro_player(self, query: dict):
-        tags = settings.get_sorted_resources("730_ProPlayer.json")
-        for tag in tags:
+        tags: list[str] = settings.get_sorted_resources("730_ProPlayer.json")
+        try:
+            tag_index: int = tags.index(self.cursor.current_point.item_set.localized_key)
+            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+        except ValueError:
+            tag_index = 0
+
+        for tag in tags[tag_index:]:
             logger.info(f"ProPlayer => tag_{tag}")
             index = 0
             count = 100
@@ -572,7 +578,7 @@ class Spider:
 
         self.result_collections.clear()
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_smg
+        index = self.cursor.current_point.csgo_type_smg.index
         count = 100
         while True:
             params = {"start": index, "count": count}
@@ -617,7 +623,7 @@ class Spider:
 
         self.result_collections.clear()
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_rifle
+        index = self.cursor.current_point.csgo_type_rifle.index
         count = 100
         while True:
             params = {"start": index, "count": count}
@@ -662,7 +668,7 @@ class Spider:
 
         self.result_collections.clear()
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_sniper_rifle
+        index = self.cursor.current_point.csgo_type_sniper_rifle.index
         count = 100
         while True:
             params = {"start": index, "count": count}
@@ -707,7 +713,7 @@ class Spider:
 
         self.result_collections.clear()
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_shotgun
+        index = self.cursor.current_point.csgo_type_shotgun.index
         count = 100
         while True:
             params = {"start": index, "count": count}
@@ -752,7 +758,7 @@ class Spider:
 
         self.result_collections.clear()
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_machinegun
+        index = self.cursor.current_point.csgo_type_machinegun.index
         count = 100
         while True:
             params = {"start": index, "count": count}
