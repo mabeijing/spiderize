@@ -5,7 +5,7 @@ import logging.config
 from pathlib import Path
 from typing import Optional
 from functools import lru_cache
-import enums
+from settings import enums
 
 import yaml
 
