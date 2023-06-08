@@ -16,7 +16,7 @@ logger = settings.get_logger()
 
 class Spider:
 
-    def __init__(self, only_update: bool = False):
+    def __init__(self, only_update: bool = True):
         self.session = requests.Session()
         self._init_session()
         self.mongo = MongoDB()
@@ -487,7 +487,7 @@ class Spider:
                     break
 
     @bind_tag("CSGO_Type_Pistol")
-    def gem_weapon_pistol_spu(self):
+    def gem_weapon_pistol_spu(self, only_update: bool = None):
         """
         手枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -498,7 +498,8 @@ class Spider:
 
         self.counter = 0
 
-        if not self.only_update:
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
             index = self.cursor.current_point.csgo_type_pistol.index
             while True:
                 params = {"start": index, "count": self.count}
@@ -541,7 +542,7 @@ class Spider:
         self.update_spu_pro_player(query)
 
     @bind_tag("CSGO_Type_SMG")
-    def gem_weapon_smg_spu(self):
+    def gem_weapon_smg_spu(self, only_update: bool = None):
         """
         微型冲锋枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -551,30 +552,32 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_smg.index
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_smg.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_weapon_smg_spu.support_asset)
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
-            index += self.count
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_weapon_smg_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
+                index += self.count
 
-            # 更新游标
-            point = self.cursor.current_point
-            point.csgo_type_smg.index = index
-            self.cursor.save(point)
+                # 更新游标
+                point = self.cursor.current_point
+                point.csgo_type_smg.index = index
+                self.cursor.save(point)
 
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_smg_spu)
@@ -592,7 +595,7 @@ class Spider:
         self.update_spu_pro_player(query)
 
     @bind_tag("CSGO_Type_Rifle")
-    def gem_weapon_rifle_spu(self):
+    def gem_weapon_rifle_spu(self, only_update: bool = None):
         """
         步枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -602,32 +605,34 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_rifle.index
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_rifle.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_weapon_rifle_spu.support_asset)
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_weapon_rifle_spu.support_asset)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-            index += self.count
+                index += self.count
 
-            # 更新游标
-            point = self.cursor.current_point
-            point.csgo_type_rifle.index = index
-            self.cursor.save(point)
+                # 更新游标
+                point = self.cursor.current_point
+                point.csgo_type_rifle.index = index
+                self.cursor.save(point)
 
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_rifle_spu)
@@ -645,7 +650,7 @@ class Spider:
         self.update_spu_pro_player(query)
 
     @bind_tag("CSGO_Type_SniperRifle")
-    def gem_weapon_sniper_rifle_spu(self):
+    def gem_weapon_sniper_rifle_spu(self, only_update: bool = None):
         """
         狙击步枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -655,30 +660,32 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_sniper_rifle.index
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_sniper_rifle.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_weapon_sniper_rifle_spu.support_asset)
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_weapon_sniper_rifle_spu.support_asset)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_sniper_rifle.index = index
-            self.cursor.save(point)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_sniper_rifle.index = index
+                self.cursor.save(point)
 
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_sniper_rifle_spu)
@@ -696,7 +703,7 @@ class Spider:
         self.update_spu_pro_player(query)
 
     @bind_tag("CSGO_Type_Shotgun")
-    def gem_weapon_shotgun_spu(self):
+    def gem_weapon_shotgun_spu(self, only_update: bool = None):
         """
         霰弹枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -706,31 +713,32 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_shotgun.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_shotgun.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_weapon_shotgun_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_weapon_shotgun_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_shotgun.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_shotgun.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_shotgun_spu)
@@ -748,7 +756,7 @@ class Spider:
         self.update_spu_pro_player(query)
 
     @bind_tag("CSGO_Type_Machinegun")
-    def gem_weapon_machinegun_spu(self):
+    def gem_weapon_machinegun_spu(self, only_update: bool = None):
         """
         机枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -758,31 +766,32 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_machinegun.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_machinegun.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_weapon_machinegun_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_weapon_machinegun_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_machinegun.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_machinegun.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_machinegun_spu)
@@ -800,7 +809,7 @@ class Spider:
         self.update_spu_pro_player(query)
 
     @bind_tag("CSGO_Type_WeaponCase")
-    def gem_weapon_case_spu(self):
+    def gem_weapon_case_spu(self, only_update: bool = None):
         """
         武器箱
          -可解析： 类型，品质，类别
@@ -810,31 +819,32 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_weapon_case.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_weapon_case.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_weapon_case_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_weapon_case_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_weapon_case.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_weapon_case.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_case_spu)
@@ -843,7 +853,7 @@ class Spider:
         self.update_spu_item_set(query)
 
     @bind_tag("Type_CustomPlayer")
-    def gem_custom_player_spu(self):
+    def gem_custom_player_spu(self, only_update: bool = None):
         """
         探员
          -可解析： 类型，品质，类别
@@ -853,31 +863,32 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_custom_player.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_custom_player.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_custom_player_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_custom_player_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_custom_player.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_custom_player.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_custom_player_spu)
@@ -886,7 +897,7 @@ class Spider:
         self.update_spu_item_set(query)
 
     @bind_tag("CSGO_Type_Knife")
-    def gem_knife_spu(self):
+    def gem_knife_spu(self, only_update: bool = None):
         """
         匕首
          - 可解析： 类型，品质，类别，武器名，外观
@@ -895,37 +906,38 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_knife.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_knife.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_knife_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_knife_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_knife.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_knife.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_knife_spu)
 
     @bind_tag("CSGO_Tool_Sticker")
-    def gem_sticker_spu(self):
+    def gem_sticker_spu(self, only_update: bool = None):
         """
         印花
          -可解析： 类型，品质，类别
@@ -935,31 +947,32 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_sticker.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_sticker.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_sticker_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_sticker_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_sticker.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_sticker.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_sticker_spu)
@@ -980,7 +993,7 @@ class Spider:
         self.update_spu_pro_player(query)
 
     @bind_tag("Type_Hands")
-    def gem_hands_spu(self):
+    def gem_hands_spu(self, only_update: bool = None):
         """
         手套
          - 可解析： 类型，品质，类别，外观
@@ -989,37 +1002,38 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_hands.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_hands.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_hands_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_hands_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_hands.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_hands.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_hands_spu)
 
     @bind_tag("CSGO_Type_Spray")
-    def gem_spray_spu(self):
+    def gem_spray_spu(self, only_update: bool = None):
         """
         涂鸦
          -可解析： 类型，品质，类别
@@ -1029,31 +1043,32 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_spray.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_spray.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_spray_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_spray_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_spray.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_spray.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_spray_spu)
@@ -1074,7 +1089,7 @@ class Spider:
         self.update_spu_tournament_team(query)
 
     @bind_tag("CSGO_Tool_Patch")
-    def gem_patch_spu(self):
+    def gem_patch_spu(self, only_update: bool = None):
         """
         布章
          -可解析： 类型，品质，类别
@@ -1084,31 +1099,32 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_patch.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_patch.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_patch_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_patch_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_patch.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_patch.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_patch_spu)
@@ -1123,7 +1139,7 @@ class Spider:
         self.update_spu_tournament_team(query)
 
     @bind_tag("CSGO_Type_MusicKit")
-    def gem_music_kit_spu(self):
+    def gem_music_kit_spu(self, only_update: bool = None):
         """
         音乐盒
          -可解析： 类型，品质，类别
@@ -1132,37 +1148,38 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_music_kit.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_music_kit.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_music_kit_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_music_kit_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_music_kit.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_music_kit.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_music_kit_spu)
 
     @bind_tag("CSGO_Type_Collectible")
-    def gem_collectible_spu(self):
+    def gem_collectible_spu(self, only_update: bool = None):
         """
         收藏品
          -可解析： 类型，品质，类别
@@ -1171,37 +1188,38 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_collectible.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_collectible.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_collectible_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_collectible_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_collectible.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_collectible.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_collectible_spu)
 
     @bind_tag("CSGO_Tool_WeaponCase_KeyTag")
-    def gem_weapon_case_key_spu(self):
+    def gem_weapon_case_key_spu(self, only_update: bool = None):
         """
         药匙
          -可解析： 类型，品质，类别
@@ -1210,37 +1228,38 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_weapon_case_key.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_weapon_case_key.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_weapon_case_key_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_weapon_case_key_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_weapon_case_key.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_weapon_case_key.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_case_key_spu)
 
     @bind_tag("CSGO_Type_Ticket")
-    def gem_weapon_ticket_spu(self):
+    def gem_weapon_ticket_spu(self, only_update: bool = None):
         """
         通行证
          -可解析： 类型，品质，类别
@@ -1249,37 +1268,38 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_ticket.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_ticket.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_weapon_ticket_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_weapon_ticket_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_ticket.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_ticket.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_ticket_spu)
 
     @bind_tag("CSGO_Tool_GiftTag")
-    def gem_gift_spu(self):
+    def gem_gift_spu(self, only_update: bool = None):
         """
         礼物
          -可解析： 类型，品质，类别
@@ -1288,37 +1308,38 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_gift.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_gift.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_gift_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_gift_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_gift.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_gift.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_gift_spu)
 
     @bind_tag("CSGO_Tool_Name_TagTag")
-    def gem_name_tag_spu(self):
+    def gem_name_tag_spu(self, only_update: bool = None):
         """
         标签
          -可解析： 类型，品质，类别
@@ -1327,37 +1348,38 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_name_tag.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_name_tag.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_name_tag_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_name_tag_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_name_tag.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_name_tag.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_name_tag_spu)
 
     @bind_tag("CSGO_Type_Tool")
-    def gem_tool_spu(self):
+    def gem_tool_spu(self, only_update: bool = None):
         """
         工具
          -可解析： 类型，品质，类别
@@ -1366,31 +1388,32 @@ class Spider:
         logger.info(f"query => {query}")
 
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_tool.index
+        only_update: bool = only_update if only_update is not None else self.only_update
+        if not only_update:
+            index = self.cursor.current_point.csgo_type_tool.index
+            while True:
+                params = {"start": index, "count": self.count}
+                params.update(query)
+                markets_spu = self.get_steam_market_spu(params)
+                if not markets_spu:
+                    break
 
-        while True:
-            params = {"start": index, "count": self.count}
-            params.update(query)
-            markets_spu = self.get_steam_market_spu(params)
-            if not markets_spu:
-                break
+                # 查询出数据库中没有的数据
+                markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+                if markets_spu_array:
+                    # 解析属性
+                    parser_market_spu(markets_spu_array, **self.gem_tool_spu.support_asset)
 
-            # 查询出数据库中没有的数据
-            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-            if markets_spu_array:
-                # 解析属性
-                parser_market_spu(markets_spu_array, **self.gem_tool_spu.support_asset)
+                    # 批量插入
+                    self.mongo.insert_many(markets_spu_array)
 
-                # 批量插入
-                self.mongo.insert_many(markets_spu_array)
+                index += self.count
+                point = self.cursor.current_point
+                point.csgo_type_tool.index = index
+                self.cursor.save(point)
 
-            index += self.count
-            point = self.cursor.current_point
-            point.csgo_type_tool.index = index
-            self.cursor.save(point)
-
-            if len(markets_spu) < self.count:
-                break
+                if len(markets_spu) < self.count:
+                    break
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_tool_spu)
