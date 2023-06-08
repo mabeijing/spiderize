@@ -32,8 +32,8 @@ class MongoDB:
         return need_insert_spu_array
 
     def check_duplicate_hash_name(self, func: Any):
-        db = self.client.get_database("tms_db")
-        collection = db.get_collection("steam_spu")
+        db = self.client.get_database(settings.MONGO_DB)
+        collection = db.get_collection(settings.MONGO_COLLECTION)
         pipeline = [
             {'$match': {'hash_name': {'$exists': True}}},
             {'$group': {'_id': "$hash_name", 'count': {'$sum': 1}}},
