@@ -341,13 +341,13 @@ class Spider:
 
         response: requests.Response = self.session.get(url, params=params, proxies=settings.PROXY_POOL)
         if response.status_code != 200:
-            logger.error(f"resp.status_code => {response.status_code}")
+            logger.error(f"resp.status_code => {response.status_code}, wait 300s and retry.")
             time.sleep(300)
             return self.gem_market_spu(params)
         try:
             results: list[Optional[dict]] = response.json()["results"]
             self.counter += 1
-            logger.info(f"the {self.counter} requests success.")
+            logger.info(f"the {self.counter} requests success. length => {len(results)}")
         except Exception:
             logger.error(f"resp.test = > {response.text}")
             time.sleep(300)
@@ -531,9 +531,11 @@ class Spider:
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
         query: dict = self.base_query(self.gem_weapon_pistol_spu)
+        logger.info(f"query => {query}")
+
         self.result_collections.clear()
         self.counter = 0
-        index = self.cursor.current_point.csgo_type_pistol
+        index = self.cursor.current_point.csgo_type_pistol.index
         count = 100
         while True:
             params = {"start": index, "count": count}
@@ -544,12 +546,15 @@ class Spider:
 
             # 查询出数据库中没有的数据
             markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+            if markets_spu_array:
+                # 解析属性
+                self.parser_market_spu(markets_spu_array, **self.gem_weapon_pistol_spu.support_asset)
 
-            # 解析属性
-            self.parser_market_spu(markets_spu_array, **self.gem_weapon_pistol_spu.support_asset)
+                # 批量插入
+                self.mongo.insert_many(markets_spu_array)
 
-            # 批量插入
-            self.mongo.insert_many(markets_spu_array)
+            if len(markets_spu) < count:
+                break
             index += count
 
         # 检查是否插入了重复数据
@@ -575,6 +580,7 @@ class Spider:
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
         query: dict = self.base_query(self.gem_weapon_smg_spu)
+        logger.info(f"query => {query}")
 
         self.result_collections.clear()
         self.counter = 0
@@ -589,12 +595,11 @@ class Spider:
 
             # 查询出数据库中没有的数据
             markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
-
-            # 解析属性
-            self.parser_market_spu(markets_spu_array, **self.gem_weapon_smg_spu.support_asset)
-
-            # 批量插入
-            self.mongo.insert_many(markets_spu_array)
+            if markets_spu_array:
+                # 解析属性
+                self.parser_market_spu(markets_spu_array, **self.gem_weapon_smg_spu.support_asset)
+                # 批量插入
+                self.mongo.insert_many(markets_spu_array)
             index += count
 
         # 检查是否插入了重复数据
@@ -620,6 +625,7 @@ class Spider:
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
         query: dict = self.base_query(self.gem_weapon_rifle_spu)
+        logger.info(f"query => {query}")
 
         self.result_collections.clear()
         self.counter = 0
@@ -634,12 +640,16 @@ class Spider:
 
             # 查询出数据库中没有的数据
             markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+            if markets_spu_array:
+                # 解析属性
+                self.parser_market_spu(markets_spu_array, **self.gem_weapon_rifle_spu.support_asset)
 
-            # 解析属性
-            self.parser_market_spu(markets_spu_array, **self.gem_weapon_rifle_spu.support_asset)
+                # 批量插入
+                self.mongo.insert_many(markets_spu_array)
 
-            # 批量插入
-            self.mongo.insert_many(markets_spu_array)
+            if len(markets_spu) < count:
+                break
+
             index += count
 
         # 检查是否插入了重复数据
@@ -665,6 +675,7 @@ class Spider:
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
         query: dict = self.base_query(self.gem_weapon_sniper_rifle_spu)
+        logger.info(f"query => {query}")
 
         self.result_collections.clear()
         self.counter = 0
@@ -679,12 +690,16 @@ class Spider:
 
             # 查询出数据库中没有的数据
             markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+            if markets_spu_array:
+                # 解析属性
+                self.parser_market_spu(markets_spu_array, **self.gem_weapon_sniper_rifle_spu.support_asset)
 
-            # 解析属性
-            self.parser_market_spu(markets_spu_array, **self.gem_weapon_sniper_rifle_spu.support_asset)
+                # 批量插入
+                self.mongo.insert_many(markets_spu_array)
 
-            # 批量插入
-            self.mongo.insert_many(markets_spu_array)
+            if len(markets_spu) < count:
+                break
+
             index += count
 
         # 检查是否插入了重复数据
@@ -710,6 +725,7 @@ class Spider:
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
         query: dict = self.base_query(self.gem_weapon_shotgun_spu)
+        logger.info(f"query => {query}")
 
         self.result_collections.clear()
         self.counter = 0
@@ -724,12 +740,16 @@ class Spider:
 
             # 查询出数据库中没有的数据
             markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+            if markets_spu_array:
+                # 解析属性
+                self.parser_market_spu(markets_spu_array, **self.gem_weapon_shotgun_spu.support_asset)
 
-            # 解析属性
-            self.parser_market_spu(markets_spu_array, **self.gem_weapon_shotgun_spu.support_asset)
+                # 批量插入
+                self.mongo.insert_many(markets_spu_array)
 
-            # 批量插入
-            self.mongo.insert_many(markets_spu_array)
+            if len(markets_spu) < count:
+                break
+
             index += count
 
         # 检查是否插入了重复数据
@@ -755,6 +775,7 @@ class Spider:
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
         query: dict = self.base_query(self.gem_weapon_machinegun_spu)
+        logger.info(f"query => {query}")
 
         self.result_collections.clear()
         self.counter = 0
@@ -769,12 +790,16 @@ class Spider:
 
             # 查询出数据库中没有的数据
             markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+            if markets_spu_array:
+                # 解析属性
+                self.parser_market_spu(markets_spu_array, **self.gem_weapon_machinegun_spu.support_asset)
 
-            # 解析属性
-            self.parser_market_spu(markets_spu_array, **self.gem_weapon_machinegun_spu.support_asset)
+                # 批量插入
+                self.mongo.insert_many(markets_spu_array)
 
-            # 批量插入
-            self.mongo.insert_many(markets_spu_array)
+            if len(markets_spu) < count:
+                break
+
             index += count
 
         # 检查是否插入了重复数据
