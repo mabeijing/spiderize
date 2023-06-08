@@ -355,7 +355,8 @@ class Spider:
 
         return [MarketSPU.validate(item) for item in results if item]
 
-    def parser_market_spu(self, market_spu_array: list[MarketSPU], weapon: bool = False, exterior: bool = False):
+    def parser_market_spu(self, market_spu_array: list[MarketSPU], spu_type: enums.TypeItem, weapon: bool = False,
+                          exterior: bool = False):
         # 类别:Quality => 普通,纪念品,StatTrak™",★,★ StatTrak™", 都有，空表示普通
         # 品质:Rarity => 消费级，军规级，受限，工业级，普通级，保密，隐秘，高级，卓越。都有
         # 武器名:Weapon => P250...
@@ -383,7 +384,7 @@ class Spider:
                 market_spu.query_item.quality = enums.QualityItem.unusual_strange
                 rarity = asset_items[2]
 
-            market_spu.query_item.spu_type = enums.TypeItem.CSGO_Type_Pistol
+            market_spu.query_item.spu_type = spu_type
             market_spu.query_item.rarity = rarity
 
             asset_items: list[str] = [item.strip() for item in market_spu.name.split("|")]

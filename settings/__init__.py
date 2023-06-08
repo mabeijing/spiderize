@@ -5,6 +5,7 @@ import logging.config
 from pathlib import Path
 from typing import Optional
 from functools import lru_cache
+import enums
 
 import yaml
 
@@ -44,13 +45,13 @@ def get_sorted_resources(name: str) -> list[str]:
 
 
 mapping = {
-    "CSGO_Type_Pistol": {"weapon": True, "exterior": True},
-    "CSGO_Type_SMG": {"weapon": True, "exterior": True},
-    "CSGO_Type_Rifle": {"weapon": True, "exterior": True},
-    "CSGO_Type_SniperRifle": {"weapon": True, "exterior": True},
-    "CSGO_Type_Shotgun": {"weapon": True, "exterior": True},
-    "CSGO_Type_Machinegun": {"weapon": True, "exterior": True},
-    "CSGO_Type_Knife": {"weapon": True, "exterior": True},
+    "CSGO_Type_Pistol": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_Pistol},
+    "CSGO_Type_SMG": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_SMG},
+    "CSGO_Type_Rifle": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_Rifle},
+    "CSGO_Type_SniperRifle": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_SniperRifle},
+    "CSGO_Type_Shotgun": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_Shotgun},
+    "CSGO_Type_Machinegun": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_Machinegun},
+    "CSGO_Type_Knife": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_Knife},
     "Type_Hands": {"weapon": False, "exterior": True},
 }
 
@@ -58,7 +59,7 @@ mapping = {
 def bind_tag(name: str):
     def inner(func):
         func.tag = f"tag_{name}"
-        assets: dict = mapping.get(name, {'weapon': False, 'exterior': False})
+        assets: dict = mapping.get(name, {'weapon': False, 'exterior': False, "spu_type": None})
         func.support_asset = assets
         return func
 
