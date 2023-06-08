@@ -1,12 +1,13 @@
 import re
 import time
-from typing import Optional
+from typing import Optional, Any
 
 import requests
 import pymongo
 
 import settings
 from settings import enums
+from settings import bind_tag
 from spider.models import MarketSPU
 from scaffold.break_point import Cursor
 
@@ -20,9 +21,8 @@ class MongoDB:
         self.client = pymongo.MongoClient(settings.MONGO_URI, connect=False)
 
     def filter_for_insert(self, market_spu_array: list[MarketSPU]) -> list[MarketSPU]:
-        database = self.client.get_database("tms_db")
-        collection = database.get_collection("steam_spu")
-        collection.update_many({}, [])
+        database = self.client.get_database(settings.MONGO_DB)
+        collection = database.get_collection(settings.MONGO_COLLECTION)
         need_insert_spu_array: list[Optional[MarketSPU]] = []
         for market_spu in market_spu_array:
             one = collection.find_one({"hash_name": market_spu.hash_name})
@@ -31,14 +31,29 @@ class MongoDB:
         logger.info(f"查询到{len(market_spu_array)}条数据，有{len(need_insert_spu_array)}条数据需要插库。")
         return need_insert_spu_array
 
+    def check_duplicate_hash_name(self, func: Any):
+        db = self.client.get_database("tms_db")
+        collection = db.get_collection("steam_spu")
+        pipeline = [
+            {'$match': {'hash_name': {'$exists': True}}},
+            {'$group': {'_id': "$hash_name", 'count': {'$sum': 1}}},
+            {'$match': {'count': {"$gte": 2}}}
+        ]
+        cursor = collection.aggregate(pipeline)
+
+        resp: list[Optional[dict]] = list(cursor)
+        if resp:
+            logger.warning(f"{func.tag} 存在重复数据 => {resp}")
+
     def insert_many(self, market_spu_array: list[MarketSPU]):
-        database = self.client.get_database("tms_db")
-        collection = database.get_collection("steam_spu")
+        database = self.client.get_database(settings.MONGO_DB)
+        collection = database.get_collection(settings.MONGO_COLLECTION)
         collection.insert_many(spu.dict(by_alias=True) for spu in market_spu_array)
 
+    # 更新收藏品
     def update_item_set(self, market_spu_array: list[MarketSPU]):
-        database = self.client.get_database("tms_db")
-        collection = database.get_collection("steam_spu")
+        database = self.client.get_database(settings.MONGO_DB)
+        collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
             pipeline = [
@@ -60,6 +75,7 @@ class MongoDB:
             else:
                 logger.warning(f"{condition} not found in mongo.")
 
+    # 更新锦标赛
     def update_tournament(self, market_spu_array: list[MarketSPU]):
         database = self.client.get_database(settings.MONGO_DB)
         collection = database.get_collection(settings.MONGO_COLLECTION)
@@ -82,8 +98,8 @@ class MongoDB:
             if not (result.acknowledged and result.modified_count == 1):
                 logger.info(f"{condition} update $query_item.tournament failed.")
 
+    # 更新战队
     def update_tournament_team(self, market_spu_array: list[MarketSPU]):
-        # 战队
         database = self.client.get_database(settings.MONGO_DB)
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
@@ -106,8 +122,8 @@ class MongoDB:
             if not (result.acknowledged and result.modified_count == 1):
                 logger.info(f"{condition} update $query_item.tournament_team failed.")
 
+    # 更新职业选手
     def update_pro_player(self, market_spu_array: list[MarketSPU]):
-        # 职业选手
         database = self.client.get_database(settings.MONGO_DB)
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
@@ -130,21 +146,173 @@ class MongoDB:
             if not (result.acknowledged and result.modified_count == 1):
                 logger.info(f"{condition} update $query_item.pro_player failed.")
 
-    def check_duplicate_hash_name(self) -> bool:
-        db = self.client.get_database("tms_db")
-        collection = db.get_collection("steam_spu")
-        pipeline = [
-            {'$match': {'hash_name': {'$exists': True}}},
-            {'$group': {'_id': "$hash_name", 'count': {'$sum': 1}}},
-            {'$match': {'count': {"$gte": 2}}}
-        ]
-        cursor = collection.aggregate(pipeline)
+    # 更新印花收藏品
+    def update_sticker_capsule(self, market_spu_array: list[MarketSPU]):
+        database = self.client.get_database(settings.MONGO_DB)
+        collection = database.get_collection(settings.MONGO_COLLECTION)
+        for market_spu in market_spu_array:
+            condition = {"hash_name": market_spu.hash_name}
+            pipeline = [
+                {
+                    "$set": {
+                        "query_item.sticker_capsule": {
+                            "$cond": {
+                                "if": {'$eq': ['$query_item.sticker_capsule', None]},
+                                "then": market_spu.query_item.sticker_capsule,
+                                "else": {"$concat": ['$query_item.sticker_capsule', ' - ',
+                                                     market_spu.query_item.sticker_capsule]}
+                            }
+                        }
+                    }
+                }
+            ]
+            result = collection.update_one(condition, pipeline)
+            if not (result.acknowledged and result.modified_count == 1):
+                logger.info(f"{condition} update $query_item.sticker_capsule failed.")
 
-        resp: list[Optional[dict]] = list(cursor)
-        if resp:
-            logger.warning(f"存在重复数据 => {resp}")
-            return False
-        return True
+    # 更新印花类型
+    def update_sticker_category(self, market_spu_array: list[MarketSPU]):
+        database = self.client.get_database(settings.MONGO_DB)
+        collection = database.get_collection(settings.MONGO_COLLECTION)
+        for market_spu in market_spu_array:
+            condition = {"hash_name": market_spu.hash_name}
+            pipeline = [
+                {
+                    "$set": {
+                        "query_item.sticker_category": {
+                            "$cond": {
+                                "if": {'$eq': ['$query_item.sticker_category', None]},
+                                "then": market_spu.query_item.sticker_category,
+                                "else": {"$concat": ['$query_item.sticker_category', ' - ',
+                                                     market_spu.query_item.sticker_category]}
+                            }
+                        }
+                    }
+                }
+            ]
+            result = collection.update_one(condition, pipeline)
+            if not (result.acknowledged and result.modified_count == 1):
+                logger.info(f"{condition} update $query_item.sticker_category failed.")
+
+    # 更新涂鸦收藏品
+    def update_spray_capsule(self, market_spu_array: list[MarketSPU]):
+        database = self.client.get_database(settings.MONGO_DB)
+        collection = database.get_collection(settings.MONGO_COLLECTION)
+        for market_spu in market_spu_array:
+            condition = {"hash_name": market_spu.hash_name}
+            pipeline = [
+                {
+                    "$set": {
+                        "query_item.spray_capsule": {
+                            "$cond": {
+                                "if": {'$eq': ['$query_item.spray_capsule', None]},
+                                "then": market_spu.query_item.spray_capsule,
+                                "else": {"$concat": ['$query_item.sticker_category', ' - ',
+                                                     market_spu.query_item.spray_capsule]}
+                            }
+                        }
+                    }
+                }
+            ]
+            result = collection.update_one(condition, pipeline)
+            if not (result.acknowledged and result.modified_count == 1):
+                logger.info(f"{condition} update $query_item.spray_capsule failed.")
+
+    # 更新涂鸦类型
+    def update_spray_category(self, market_spu_array: list[MarketSPU]):
+        database = self.client.get_database(settings.MONGO_DB)
+        collection = database.get_collection(settings.MONGO_COLLECTION)
+        for market_spu in market_spu_array:
+            condition = {"hash_name": market_spu.hash_name}
+            pipeline = [
+                {
+                    "$set": {
+                        "query_item.spray_category": {
+                            "$cond": {
+                                "if": {'$eq': ['$query_item.spray_category', None]},
+                                "then": market_spu.query_item.spray_category,
+                                "else": {"$concat": ['$query_item.spray_category', ' - ',
+                                                     market_spu.query_item.spray_category]}
+                            }
+                        }
+                    }
+                }
+            ]
+            result = collection.update_one(condition, pipeline)
+            if not (result.acknowledged and result.modified_count == 1):
+                logger.info(f"{condition} update $query_item.spray_category failed.")
+
+    # 更新涂鸦颜色
+    def update_spray_color_category(self, market_spu_array: list[MarketSPU]):
+        database = self.client.get_database(settings.MONGO_DB)
+        collection = database.get_collection(settings.MONGO_COLLECTION)
+        for market_spu in market_spu_array:
+            condition = {"hash_name": market_spu.hash_name}
+            pipeline = [
+                {
+                    "$set": {
+                        "query_item.spray_color_category": {
+                            "$cond": {
+                                "if": {'$eq': ['$query_item.spray_color_category', None]},
+                                "then": market_spu.query_item.spray_color_category,
+                                "else": {"$concat": ['$query_item.spray_color_category', ' - ',
+                                                     market_spu.query_item.spray_color_category]}
+                            }
+                        }
+                    }
+                }
+            ]
+            result = collection.update_one(condition, pipeline)
+            if not (result.acknowledged and result.modified_count == 1):
+                logger.info(f"{condition} update $query_item.spray_color_category failed.")
+
+    # 更新布章收藏品
+    def update_patch_capsule(self, market_spu_array: list[MarketSPU]):
+        database = self.client.get_database(settings.MONGO_DB)
+        collection = database.get_collection(settings.MONGO_COLLECTION)
+        for market_spu in market_spu_array:
+            condition = {"hash_name": market_spu.hash_name}
+            pipeline = [
+                {
+                    "$set": {
+                        "query_item.patch_capsule": {
+                            "$cond": {
+                                "if": {'$eq': ['$query_item.patch_capsule', None]},
+                                "then": market_spu.query_item.patch_capsule,
+                                "else": {"$concat": ['$query_item.patch_capsule', ' - ',
+                                                     market_spu.query_item.patch_capsule]}
+                            }
+                        }
+                    }
+                }
+            ]
+            result = collection.update_one(condition, pipeline)
+            if not (result.acknowledged and result.modified_count == 1):
+                logger.info(f"{condition} update $query_item.patch_capsule failed.")
+
+    # 更新布章类型
+    def update_patch_category(self, market_spu_array: list[MarketSPU]):
+        database = self.client.get_database(settings.MONGO_DB)
+        collection = database.get_collection(settings.MONGO_COLLECTION)
+        for market_spu in market_spu_array:
+            condition = {"hash_name": market_spu.hash_name}
+            pipeline = [
+                {
+                    "$set": {
+                        "query_item.patch_category": {
+                            "$cond": {
+                                "if": {'$eq': ['$query_item.patch_category', None]},
+                                "then": market_spu.query_item.patch_category,
+                                "else": {"$concat": ['$query_item.patch_category', ' - ',
+                                                     market_spu.query_item.patch_category]}
+                            }
+                        }
+                    }
+                }
+            ]
+            result = collection.update_one(condition, pipeline)
+            if not (result.acknowledged and result.modified_count == 1):
+                logger.info(f"{condition} update $query_item.patch_category failed.")
 
 
 class Spider:
@@ -152,11 +320,14 @@ class Spider:
     def __init__(self):
         self.session = requests.Session()
         self._init_session()
-        self.logger = settings.get_logger()
         self.mongo = MongoDB()
         self.result_collections: list[MarketSPU] = []
         self.counter: int = 0
         self.cursor: Cursor = Cursor()
+
+    @staticmethod
+    def base_query(func: Any) -> dict:
+        return {"appid": 730, "norender": 1, "sort_column": "name", "sort_dir": "asc", "category_730_Type[]": func.tag}
 
     @property
     def mongo_client(self):
@@ -167,19 +338,18 @@ class Spider:
 
     def gem_market_spu(self, params: dict) -> list[Optional[MarketSPU]]:
         url = "https://steamcommunity.com/market/search/render"
-        proxies = {'http': 'http://proxy.vmware.com:3128', 'https': 'http://proxy.vmware.com:3128'}
 
-        response: requests.Response = self.session.get(url, params=params, proxies=proxies)
+        response: requests.Response = self.session.get(url, params=params, proxies=settings.PROXY_POOL)
         if response.status_code != 200:
-            self.logger.error(f"resp.status_code => {response.status_code}")
+            logger.error(f"resp.status_code => {response.status_code}")
             time.sleep(300)
             return self.gem_market_spu(params)
         try:
             results: list[Optional[dict]] = response.json()["results"]
             self.counter += 1
-            self.logger.info(f"the {self.counter} requests success.")
+            logger.info(f"the {self.counter} requests success.")
         except Exception:
-            self.logger.error(f"resp.test = > {response.text}")
+            logger.error(f"resp.test = > {response.text}")
             time.sleep(300)
             return self.gem_market_spu(params)
 
@@ -233,9 +403,8 @@ class Spider:
                     exterior = match.group(1)
                     market_spu.query_item.exterior = exterior
 
+    # 收藏品 => 武器，武器箱，探员
     def query_item_set_by_type(self, query: dict):
-        # 相当漫长的过长
-        # 收藏品 => 武器，武器箱，探员
         tags: list[str] = settings.get_sorted_resources("730_ItemSet.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.item_set.localized_key)
@@ -264,9 +433,8 @@ class Spider:
                 if len(markets_spu_array) < count:
                     break
 
+    # 锦标赛 => 武器，涂鸦, 印花, 武器箱
     def query_tournament_by_type(self, query: dict):
-        # 相当漫长的过长
-        # 锦标赛 => 武器，涂鸦, 印花, 武器箱
         tags: list[str] = settings.get_sorted_resources("730_Tournament.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.tournament.localized_key)
@@ -295,8 +463,8 @@ class Spider:
                 if len(markets_spu_array) < count:
                     break
 
+    # 战队 => 武器，印花，涂鸦，布章
     def query_tournament_team_by_type(self, query: dict):
-        # 战队 => 武器，印花，涂鸦，布章
         tags: list[str] = settings.get_sorted_resources("730_TournamentTeam.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.item_set.localized_key)
@@ -325,8 +493,8 @@ class Spider:
                 if len(markets_spu_array) < count:
                     break
 
+    # 职业选手 => 武器，印花
     def query_pro_player(self, query: dict):
-        # 职业选手 => 武器，印花
         tags = settings.get_sorted_resources("730_ProPlayer.json")
         for tag in tags:
             logger.info(f"ProPlayer => tag_{tag}")
@@ -349,17 +517,16 @@ class Spider:
                 if len(markets_spu_array) < count:
                     break
 
+    @bind_tag("CSGO_Type_Pistol")
     def gem_weapon_pistol_spu(self):
-        query = {"appid": 730, "norender": 1, "category_730_Type[]": "tag_CSGO_Type_Pistol", "sort_column": "name",
-                 "sort_dir": "asc"}
+        """
+        手枪
+         -可解析： 类型，品质，类别，武器名，外观
+         -需查询： 收藏品，锦标赛，战队，职业选手
+        """
+        query: dict = self.base_query(self.gem_weapon_pistol_spu)
         self.result_collections.clear()
         self.counter = 0
-        # 查询条件必须包含匕首，手枪...
-        # -可解析： 类型，品质，类别，武器名，外观
-        # -需查询： 收藏品，锦标赛，战队，职业选手 最少查询6*5 = 30次大查询
-
-        # 手枪先先查询一轮。获取所有手枪可解析属性
-        # 再根据 收藏品，锦标赛，战队，职业选手 依次查询修改market_spu
         index = self.cursor.current_point.csgo_type_pistol
         count = 100
         while True:
@@ -373,17 +540,16 @@ class Spider:
             markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
 
             # 解析属性
-            self.parser_market_spu(markets_spu_array, weapon=True, exterior=True)
+            self.parser_market_spu(markets_spu_array, **self.gem_weapon_pistol_spu.support_asset)
 
             # 批量插入
             self.mongo.insert_many(markets_spu_array)
             index += count
 
         # 检查是否插入了重复数据
-        if self.mongo.check_duplicate_hash_name() is False:
-            logger.error(f"本次查询的：tag_CSGO_Type_Pistol 存在重复数据")
+        self.mongo.check_duplicate_hash_name(self.gem_weapon_pistol_spu)
 
-        # 查询并更新收藏品。前提是有数据
+        # 查询并更新收藏品
         self.query_item_set_by_type(query)
 
         # 查询并更新锦标赛
@@ -395,16 +561,233 @@ class Spider:
         # 查询并更新职业选手
         self.query_pro_player(query)
 
+    @bind_tag("CSGO_Type_SMG")
     def gem_weapon_smg_spu(self):
-        pass
+        """
+        微型冲锋枪
+         -可解析： 类型，品质，类别，武器名，外观
+         -需查询： 收藏品，锦标赛，战队，职业选手
+        """
+        query: dict = self.base_query(self.gem_weapon_smg_spu)
+
+        self.result_collections.clear()
+        self.counter = 0
+        index = self.cursor.current_point.csgo_type_smg
+        count = 100
+        while True:
+            params = {"start": index, "count": count}
+            params.update(query)
+            markets_spu = self.gem_market_spu(params)
+            if not markets_spu:
+                break
+
+            # 查询出数据库中没有的数据
+            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+
+            # 解析属性
+            self.parser_market_spu(markets_spu_array, **self.gem_weapon_smg_spu.support_asset)
+
+            # 批量插入
+            self.mongo.insert_many(markets_spu_array)
+            index += count
+
+        # 检查是否插入了重复数据
+        self.mongo.check_duplicate_hash_name(self.gem_weapon_smg_spu)
+
+        # 查询并更新收藏品
+        self.query_item_set_by_type(query)
+
+        # 查询并更新锦标赛
+        self.query_tournament_by_type(query)
+
+        # 查询并更新战队
+        self.query_tournament_team_by_type(query)
+
+        # 查询并更新职业选手
+        self.query_pro_player(query)
+
+    @bind_tag("CSGO_Type_Rifle")
+    def gem_weapon_rifle_spu(self):
+        """
+        步枪
+         -可解析： 类型，品质，类别，武器名，外观
+         -需查询： 收藏品，锦标赛，战队，职业选手
+        """
+        query: dict = self.base_query(self.gem_weapon_rifle_spu)
+
+        self.result_collections.clear()
+        self.counter = 0
+        index = self.cursor.current_point.csgo_type_rifle
+        count = 100
+        while True:
+            params = {"start": index, "count": count}
+            params.update(query)
+            markets_spu = self.gem_market_spu(params)
+            if not markets_spu:
+                break
+
+            # 查询出数据库中没有的数据
+            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+
+            # 解析属性
+            self.parser_market_spu(markets_spu_array, **self.gem_weapon_rifle_spu.support_asset)
+
+            # 批量插入
+            self.mongo.insert_many(markets_spu_array)
+            index += count
+
+        # 检查是否插入了重复数据
+        self.mongo.check_duplicate_hash_name(self.gem_weapon_rifle_spu)
+
+        # 查询并更新收藏品
+        self.query_item_set_by_type(query)
+
+        # 查询并更新锦标赛
+        self.query_tournament_by_type(query)
+
+        # 查询并更新战队
+        self.query_tournament_team_by_type(query)
+
+        # 查询并更新职业选手
+        self.query_pro_player(query)
+
+    @bind_tag("CSGO_Type_SniperRifle")
+    def gem_weapon_sniper_rifle_spu(self):
+        """
+        狙击步枪
+         -可解析： 类型，品质，类别，武器名，外观
+         -需查询： 收藏品，锦标赛，战队，职业选手
+        """
+        query: dict = self.base_query(self.gem_weapon_sniper_rifle_spu)
+
+        self.result_collections.clear()
+        self.counter = 0
+        index = self.cursor.current_point.csgo_type_sniper_rifle
+        count = 100
+        while True:
+            params = {"start": index, "count": count}
+            params.update(query)
+            markets_spu = self.gem_market_spu(params)
+            if not markets_spu:
+                break
+
+            # 查询出数据库中没有的数据
+            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+
+            # 解析属性
+            self.parser_market_spu(markets_spu_array, **self.gem_weapon_sniper_rifle_spu.support_asset)
+
+            # 批量插入
+            self.mongo.insert_many(markets_spu_array)
+            index += count
+
+        # 检查是否插入了重复数据
+        self.mongo.check_duplicate_hash_name(self.gem_weapon_sniper_rifle_spu)
+
+        # 查询并更新收藏品
+        self.query_item_set_by_type(query)
+
+        # 查询并更新锦标赛
+        self.query_tournament_by_type(query)
+
+        # 查询并更新战队
+        self.query_tournament_team_by_type(query)
+
+        # 查询并更新职业选手
+        self.query_pro_player(query)
+
+    @bind_tag("CSGO_Type_Shotgun")
+    def gem_weapon_shotgun_spu(self):
+        """
+        霰弹枪
+         -可解析： 类型，品质，类别，武器名，外观
+         -需查询： 收藏品，锦标赛，战队，职业选手
+        """
+        query: dict = self.base_query(self.gem_weapon_shotgun_spu)
+
+        self.result_collections.clear()
+        self.counter = 0
+        index = self.cursor.current_point.csgo_type_shotgun
+        count = 100
+        while True:
+            params = {"start": index, "count": count}
+            params.update(query)
+            markets_spu = self.gem_market_spu(params)
+            if not markets_spu:
+                break
+
+            # 查询出数据库中没有的数据
+            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+
+            # 解析属性
+            self.parser_market_spu(markets_spu_array, **self.gem_weapon_shotgun_spu.support_asset)
+
+            # 批量插入
+            self.mongo.insert_many(markets_spu_array)
+            index += count
+
+        # 检查是否插入了重复数据
+        self.mongo.check_duplicate_hash_name(self.gem_weapon_shotgun_spu)
+
+        # 查询并更新收藏品
+        self.query_item_set_by_type(query)
+
+        # 查询并更新锦标赛
+        self.query_tournament_by_type(query)
+
+        # 查询并更新战队
+        self.query_tournament_team_by_type(query)
+
+        # 查询并更新职业选手
+        self.query_pro_player(query)
+
+    @bind_tag("CSGO_Type_Machinegun")
+    def gem_weapon_machinegun_spu(self):
+        """
+        机枪
+         -可解析： 类型，品质，类别，武器名，外观
+         -需查询： 收藏品，锦标赛，战队，职业选手
+        """
+        query: dict = self.base_query(self.gem_weapon_machinegun_spu)
+
+        self.result_collections.clear()
+        self.counter = 0
+        index = self.cursor.current_point.csgo_type_machinegun
+        count = 100
+        while True:
+            params = {"start": index, "count": count}
+            params.update(query)
+            markets_spu = self.gem_market_spu(params)
+            if not markets_spu:
+                break
+
+            # 查询出数据库中没有的数据
+            markets_spu_array: list[Optional[MarketSPU]] = self.mongo.filter_for_insert(markets_spu)
+
+            # 解析属性
+            self.parser_market_spu(markets_spu_array, **self.gem_weapon_machinegun_spu.support_asset)
+
+            # 批量插入
+            self.mongo.insert_many(markets_spu_array)
+            index += count
+
+        # 检查是否插入了重复数据
+        self.mongo.check_duplicate_hash_name(self.gem_weapon_machinegun_spu)
+
+        # 查询并更新收藏品
+        self.query_item_set_by_type(query)
+
+        # 查询并更新锦标赛
+        self.query_tournament_by_type(query)
+
+        # 查询并更新战队
+        self.query_tournament_team_by_type(query)
+
+        # 查询并更新职业选手
+        self.query_pro_player(query)
 
 
 if __name__ == '__main__':
     spider = Spider()
-    index = spider.cursor.current_point.csgo_type_pistol.index
-    print(index)
-
-    point = spider.cursor.current_point
-    point.csgo_type_pistol.localized_key = "888"
-    point.csgo_type_pistol.index = 700
-    spider.cursor.save(point)
+    spider.gem_weapon_smg_spu()
+    spider.gem_weapon_pistol_spu()

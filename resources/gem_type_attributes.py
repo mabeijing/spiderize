@@ -53,6 +53,30 @@
         -可解析： 类型，品质，类别
         -需查询： 布章收藏品，布章类型， 战队 最少查询4次大查询
 
+
+如何解决两个大类下的小类关系查询
+
+例子：选手下有A,B,C 属性战队有a,b,c。要求查询出选手所属的战队
+1. 选根据选手类型，查询出搜索选手，ABC
+2. 在根据战队属性，abc，分别关联A,B,C去查询，例子:aA查询，将查出来的结果，更新A，说明A是a战队的，bA,说明A也是b战队的，Ba说明B也是a战队的
+    这里是多对多属性，可以简化成1对多，固定选手，每个选手查询N次属性，
+    A-abc
+    B-ac
+    C-ab
+
+3. 如果某一时候，A-abc 修改成 A-ab ,怎么识别，同时怎么级联删除关系
+    将一对多的属性，分别通过A去查询，增加query字段去查询？不太靠谱
+    跑完插入，跑更新 => 首轮插入时候，后面的增量插入数据量不大。
+
+4. 在将上述关系转化成多对多， 可以实现通过战队，查询出所有的选手，也可以实现通过选手，查询出所有的战队
+    A-a
+    A-b
+    A-c
+    B-a
+    B-c
+    C-a
+    C-b
+
 """
 import json
 import time
@@ -95,7 +119,6 @@ def get_pro_players_array(extra: dict):
         params = {"appid": 730, "norender": 1, "category_730_ProPlayer[]": f"tag_{player}"}
         params.update(extra)
         resp: dict = gem_spu(params)
-
 
 
 def main():

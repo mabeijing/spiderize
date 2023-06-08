@@ -20,6 +20,8 @@ MONGO_URI = "mongodb://root:example@localhost:27017"
 MONGO_DB = "tms_db"
 MONGO_COLLECTION = "steam_spu"
 
+PROXY_POOL = {'http': 'http://proxy.vmware.com:3128', 'https': 'http://proxy.vmware.com:3128'}
+
 
 def db_config(env="dev") -> dict:
     configuration: dict = yaml.safe_load(SETTINGS.joinpath(f"settings_{env}.yaml").read_bytes())
@@ -30,7 +32,7 @@ def get_logger(config_yaml: str = "logging.yaml", **kwargs) -> logging.Logger:
     config: dict = yaml.safe_load(SETTINGS.joinpath(config_yaml).read_bytes())
     default_kwargs = {"logfile": f"{ROOT.joinpath('logs', 'running.log')}"}
     default_kwargs.update(kwargs)
-    parsed_config = parser(config, default_kwargs)
+    parsed_config = _parser(config, default_kwargs)
     logging.config.dictConfig(parsed_config)
     return logging.getLogger('spiderize')
 
@@ -41,11 +43,33 @@ def get_sorted_resources(name: str) -> list[str]:
     return sorted(tags)
 
 
-def parser(config, kwargs: dict):
+mapping = {
+    "CSGO_Type_Pistol": {"weapon": True, "exterior": True},
+    "CSGO_Type_SMG": {"weapon": True, "exterior": True},
+    "CSGO_Type_Rifle": {"weapon": True, "exterior": True},
+    "CSGO_Type_SniperRifle": {"weapon": True, "exterior": True},
+    "CSGO_Type_Shotgun": {"weapon": True, "exterior": True},
+    "CSGO_Type_Machinegun": {"weapon": True, "exterior": True},
+    "CSGO_Type_Knife": {"weapon": True, "exterior": True},
+    "Type_Hands": {"weapon": False, "exterior": True},
+}
+
+
+def bind_tag(name: str):
+    def inner(func):
+        func.tag = f"tag_{name}"
+        assets: dict = mapping.get(name, {'weapon': False, 'exterior': False})
+        func.support_asset = assets
+        return func
+
+    return inner
+
+
+def _parser(config, kwargs: dict):
     # 用于增强yaml配置。支持key，value的参数化
     if isinstance(config, list):
         for index, element in enumerate(config):
-            config[index] = parser(element, kwargs)
+            config[index] = _parser(element, kwargs)
     if isinstance(config, dict):
         # 如果key满足${}格式，就解析
         new_config = {}
@@ -55,7 +79,7 @@ def parser(config, kwargs: dict):
                 k = kwargs.get(match.group(1))
                 if k is None:
                     raise ValueError(f"{k} not a valid key for the {kwargs}")
-            new_config[k] = parser(v, kwargs)
+            new_config[k] = _parser(v, kwargs)
         return new_config
     if isinstance(config, (int, float)):
         return config

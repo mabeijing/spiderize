@@ -25,6 +25,11 @@ class Point(BaseModel):
     pro_player: PointItem = fields.Field(PointItem())
 
     csgo_type_pistol: PointItem = fields.Field(PointItem())
+    csgo_type_smg: PointItem = fields.Field(PointItem())
+    csgo_type_rifle: PointItem = fields.Field(PointItem())
+    csgo_type_sniper_rifle: PointItem = fields.Field(PointItem())
+    csgo_type_shotgun: PointItem = fields.Field(PointItem())
+    csgo_type_machinegun: PointItem = fields.Field(PointItem())
 
 
 class Cursor:
@@ -59,30 +64,4 @@ class Cursor:
 
 
 if __name__ == '__main__':
-    cursor = Cursor()
-
-    point = cursor.current_point
-    point.item_set.localized_key = "asdc"
-    cursor.save(point)
-
-    print(cursor.current_point.dict())
-
-    import re
-
-    str1 = "export const allLocales_(en)"
-    pattern = re.compile(r".*allLocales_\((.*)\)$")
-
-    match = pattern.match(str1)
-    print(match.regs[0])
-    start, end = match.regs[0]
-    print(str1[start: end])
-
-    # def cut(r: re.Match):
-    #     s, e = r.regs[0]
-    #     prefix = str1[s, e]
-    #     return str(r.regs)
-    #
-    #
-    # s = re.sub(pattern, cut, str1)
-    # print(s)
-    # print(str1)
+    pass
