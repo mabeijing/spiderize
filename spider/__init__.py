@@ -415,7 +415,13 @@ class Spider:
 
         for tag in tags[tag_index:]:
             logger.info(f"ItemSet => tag_{tag}")
-            index = 0
+            # 更新游标
+            point = self.cursor.current_point
+            point.item_set.localized_key = tag
+            self.cursor.save(point)
+
+            logger.info(f"ItemSet => tag_{tag}")
+            index = self.cursor.current_point.item_set.index
             count = 100
             while True:
                 params = {"start": index, "count": count, "category_730_ItemSet[]": f"tag_{tag}"}
@@ -431,6 +437,11 @@ class Spider:
                 self.mongo.update_item_set(markets_spu_array)
                 index += count
 
+                # 更新游标
+                point = self.cursor.current_point
+                point.item_set.index = index
+                self.cursor.save(point)
+
                 if len(markets_spu_array) < count:
                     break
 
@@ -445,7 +456,12 @@ class Spider:
 
         for tag in tags[tag_index:]:
             logger.info(f"Tournament => tag_{tag}")
-            index = 0
+            # 更新游标
+            point = self.cursor.current_point
+            point.tournament.localized_key = tag
+            self.cursor.save(point)
+
+            index = self.cursor.current_point.tournament.index
             count = 100
             while True:
                 params = {"start": index, "count": count, "category_730_Tournament[]": f"tag_{tag}"}
@@ -461,6 +477,11 @@ class Spider:
                 self.mongo.update_tournament(markets_spu_array)
                 index += count
 
+                # 更新游标
+                point = self.cursor.current_point
+                point.tournament.index = index
+                self.cursor.save(point)
+
                 if len(markets_spu_array) < count:
                     break
 
@@ -475,7 +496,12 @@ class Spider:
 
         for tag in tags[tag_index:]:
             logger.info(f"TournamentTeam => tag_{tag}")
-            index = 0
+            # 更新游标
+            point = self.cursor.current_point
+            point.tournament_team.localized_key = tag
+            self.cursor.save(point)
+
+            index = self.cursor.current_point.tournament_team.index
             count = 100
             while True:
                 params = {"start": index, "count": count, "category_730_TournamentTeam[]": f"tag_{tag}"}
@@ -491,6 +517,10 @@ class Spider:
                 self.mongo.update_tournament_team(markets_spu_array)
                 index += count
 
+                point = self.cursor.current_point
+                point.tournament_team.index = index
+                self.cursor.save(point)
+
                 if len(markets_spu_array) < count:
                     break
 
@@ -505,7 +535,12 @@ class Spider:
 
         for tag in tags[tag_index:]:
             logger.info(f"ProPlayer => tag_{tag}")
-            index = 0
+            # 更新游标
+            point = self.cursor.current_point
+            point.pro_player.localized_key = tag
+            self.cursor.save(point)
+
+            index = self.cursor.current_point.pro_player.index
             count = 100
             while True:
                 params = {"start": index, "count": count, "category_730_ProPlayer[]": f"tag_{tag}"}
@@ -520,6 +555,10 @@ class Spider:
 
                 self.mongo.update_pro_player(markets_spu_array)
                 index += count
+
+                point = self.cursor.current_point
+                point.pro_player.index = index
+                self.cursor.save(point)
 
                 if len(markets_spu_array) < count:
                     break
@@ -554,9 +593,14 @@ class Spider:
                 # 批量插入
                 self.mongo.insert_many(markets_spu_array)
 
+            index += count
+            # 更新游标
+            point = self.cursor.current_point
+            point.csgo_type_pistol.index = index
+            self.cursor.save(point)
+
             if len(markets_spu) < count:
                 break
-            index += count
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_pistol_spu)
@@ -603,6 +647,14 @@ class Spider:
                 self.mongo.insert_many(markets_spu_array)
             index += count
 
+            # 更新游标
+            point = self.cursor.current_point
+            point.csgo_type_smg.index = index
+            self.cursor.save(point)
+
+            if len(markets_spu) < count:
+                break
+
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_smg_spu)
 
@@ -648,10 +700,15 @@ class Spider:
                 # 批量插入
                 self.mongo.insert_many(markets_spu_array)
 
+            index += count
+
+            # 更新游标
+            point = self.cursor.current_point
+            point.csgo_type_rifle.index = index
+            self.cursor.save(point)
+
             if len(markets_spu) < count:
                 break
-
-            index += count
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_rifle_spu)
@@ -698,10 +755,13 @@ class Spider:
                 # 批量插入
                 self.mongo.insert_many(markets_spu_array)
 
+            index += count
+            point = self.cursor.current_point
+            point.csgo_type_sniper_rifle.index = index
+            self.cursor.save(point)
+
             if len(markets_spu) < count:
                 break
-
-            index += count
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_sniper_rifle_spu)
@@ -748,10 +808,13 @@ class Spider:
                 # 批量插入
                 self.mongo.insert_many(markets_spu_array)
 
+            index += count
+            point = self.cursor.current_point
+            point.csgo_type_shotgun.index = index
+            self.cursor.save(point)
+
             if len(markets_spu) < count:
                 break
-
-            index += count
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_shotgun_spu)
@@ -798,10 +861,13 @@ class Spider:
                 # 批量插入
                 self.mongo.insert_many(markets_spu_array)
 
+            index += count
+            point = self.cursor.current_point
+            point.csgo_type_machinegun.index = index
+            self.cursor.save(point)
+
             if len(markets_spu) < count:
                 break
-
-            index += count
 
         # 检查是否插入了重复数据
         self.mongo.check_duplicate_hash_name(self.gem_weapon_machinegun_spu)
