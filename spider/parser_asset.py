@@ -52,12 +52,12 @@ def parser_market_spu(market_spu_array: list[MarketSPU], spu_type: str, weapon: 
         _parse_quality_and_rarity(market_spu)
 
         asset_items: list[str] = [item.strip() for item in market_spu.name.split("|")]
-        if len(asset_items) > 2:
-            logger.warning(f"weapon length more 2 part => {asset_items}")
 
         if weapon:
             weapon_name: str = asset_items[0]
             market_spu.query_item.weapon = weapon_name
+            if len(asset_items) > 2:
+                logger.warning(f"weapon length more 2 part => {asset_items}")
 
         if exterior:
             asset_exterior = asset_items[1]
