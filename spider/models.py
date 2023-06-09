@@ -8,10 +8,10 @@ class QueryItems(BaseModel):
     spu_type: Optional[str] = fields.Field(None, alias='type')  # 类型 唯一属性
     weapon: Optional[str] = fields.Field(None)  # 武器名   唯一属性
     exterior: Optional[str] = fields.Field(None)  # 外观  唯一属性
-    item_set: Optional[str] = fields.Field(None)  # 收藏品 ？？
-    tournament: Optional[str] = fields.Field(None)  # 锦标赛 ？？
-    pro_player: Optional[str] = fields.Field(None)  # 职业选手 ？？
-    tournament_team: Optional[str] = fields.Field(None)  # 战队 ？？
+    item_set: Optional[str] = fields.Field(None)  # 收藏品 唯一属性
+    tournament: list[Optional[str]] = fields.Field([])  # 锦标赛 多属性
+    pro_player: list[Optional[str]] = fields.Field([])  # 职业选手 多属性
+    tournament_team: list[Optional[str]] = fields.Field([])  # 战队 多属性
     sticker_category: Optional[str] = fields.Field(None)  # 印花类型 唯一属性
     sticker_capsule: Optional[str] = fields.Field(None)  # 印花收藏品    ？？
     spray_capsule: Optional[str] = fields.Field(None)  # 涂鸦收藏品  ？？

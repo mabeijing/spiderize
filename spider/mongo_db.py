@@ -40,7 +40,8 @@ class MongoDB:
     def insert_many(self, market_spu_array: list[MarketSPU]):
         database = self.client.get_database(settings.MONGO_DB)
         collection = database.get_collection(settings.MONGO_COLLECTION)
-        collection.insert_many(spu.dict(by_alias=True) for spu in market_spu_array)
+        if market_spu_array:
+            collection.insert_many(spu.dict(by_alias=True) for spu in market_spu_array)
 
     # 更新收藏品
     def update_item_set(self, market_spu_array: list[MarketSPU]):
@@ -71,21 +72,9 @@ class MongoDB:
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
-            pipeline = [
-                {
-                    "$set": {
-                        "query_item.tournament": {
-                            "$cond": {
-                                "if": {'$eq': ['$query_item.tournament', None]},
-                                "then": market_spu.query_item.tournament,
-                                "else": {"$concat": ['$query_item.tournament', ' - ', market_spu.query_item.tournament]}
-                            }
-                        }
-                    }
-                }
-            ]
-            result = collection.update_one(condition, pipeline)
-            if not (result.acknowledged and result.modified_count == 1):
+            updated = {"$addToSet": {"query_item.tournament": market_spu.query_item.tournament}}
+            result = collection.update_one(condition, updated)
+            if not result.acknowledged:
                 logger.error(f"{condition} update $query_item.tournament failed.")
 
     # 更新战队
@@ -94,22 +83,9 @@ class MongoDB:
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
-            pipeline = [
-                {
-                    "$set": {
-                        "query_item.tournament_team": {
-                            "$cond": {
-                                "if": {'$eq': ['$query_item.tournament_team', None]},
-                                "then": market_spu.query_item.tournament_team,
-                                "else": {"$concat": ['$query_item.tournament_team', ' - ',
-                                                     market_spu.query_item.tournament_team]}
-                            }
-                        }
-                    }
-                }
-            ]
-            result = collection.update_one(condition, pipeline)
-            if not (result.acknowledged and result.modified_count == 1):
+            updated = {"$addToSet": {"query_item.tournament_team": market_spu.query_item.tournament_team}}
+            result = collection.update_one(condition, updated)
+            if not result.acknowledged:
                 logger.error(f"{condition} update $query_item.tournament_team failed.")
 
     # 更新职业选手
@@ -118,22 +94,9 @@ class MongoDB:
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
-            pipeline = [
-                {
-                    "$set": {
-                        "query_item.pro_player": {
-                            "$cond": {
-                                "if": {'$eq': ['$query_item.pro_player', None]},
-                                "then": market_spu.query_item.pro_player,
-                                "else": {"$concat": ['$query_item.pro_player', ' - ',
-                                                     market_spu.query_item.pro_player]}
-                            }
-                        }
-                    }
-                }
-            ]
-            result = collection.update_one(condition, pipeline)
-            if not (result.acknowledged and result.modified_count == 1):
+            updated = {"$addToSet": {"query_item.pro_player": market_spu.query_item.pro_player}}
+            result = collection.update_one(condition, updated)
+            if not result.acknowledged:
                 logger.error(f"{condition} update $query_item.pro_player failed.")
 
     # 更新印花收藏品
