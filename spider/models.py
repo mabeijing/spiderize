@@ -31,6 +31,7 @@ class AssetDescription(BaseModel):
     instanceid: str = fields.Field()
     background_color: str = fields.Field()
     icon_url: str = fields.Field()
+    icon_url_large: str = fields.Field("")
     name_color: str = fields.Field()
     asset_type: str = fields.Field(alias='type')
     market_hash_name: str = fields.Field()
@@ -42,7 +43,7 @@ class MarketSPU(BaseModel):
     sell_listings: int = fields.Field()
     sell_price_text: str = fields.Field()
     asset_description: AssetDescription = fields.Field(default={})
-    descriptions: dict = fields.Field(default={})
+    descriptions: list[dict] = fields.Field(default=[])
     query_item: QueryItems = fields.Field(default=QueryItems())
 
 
