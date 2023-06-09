@@ -3,7 +3,7 @@ import re
 from settings import enums
 from spider.models import MarketSPU
 from settings import get_logger
-from spider.mapping import get_rarity_asset
+from spider.mapping import get_rarity_asset, WEAPON_NAME_MAP
 
 logger = get_logger()
 exterior_pattern: re.Pattern = re.compile(r".*\((.*)\).*")
@@ -54,8 +54,10 @@ def parser_market_spu(market_spu_array: list[MarketSPU], spu_type: str, weapon: 
         asset_items: list[str] = [item.strip() for item in market_spu.name.split("|")]
 
         if weapon:
-            weapon_name: str = asset_items[0]
-            market_spu.query_item.weapon = weapon_name
+            maybe_weapon_name: str = asset_items[0]
+            weapon_name = WEAPON_NAME_MAP.get(maybe_weapon_name, None)
+
+            market_spu.query_item.weapon = weapon_name if weapon_name else maybe_weapon_name
             if len(asset_items) > 2:
                 logger.warning(f"weapon length more 2 part => {asset_items}")
 
