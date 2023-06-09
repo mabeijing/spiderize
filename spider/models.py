@@ -42,6 +42,7 @@ class MarketSPU(BaseModel):
     sell_listings: int = fields.Field()
     sell_price_text: str = fields.Field()
     asset_description: AssetDescription = fields.Field(default={})
+    descriptions: dict = fields.Field(default={})
     query_item: QueryItems = fields.Field(default=QueryItems())
 
 
@@ -74,4 +75,4 @@ if __name__ == '__main__':
     # spu.query_item.exterior = "dscsdcsdcsdc"
     # print(spu.dict(by_alias=True))
 
-    print(spu.query_item.dict(by_alias=True))
+    print(spu.dict(by_alias=True))
