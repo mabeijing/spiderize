@@ -9,6 +9,7 @@ logger = settings.get_logger()
 
 
 class MongoDB:
+    # 字段是数组的 => tournament, pro_player, tournament_team, sticker_capsule, spray_capsule, patch_capsule
     def __init__(self):
         self.client = pymongo.MongoClient(settings.MONGO_URI, connect=False)
 
@@ -105,22 +106,9 @@ class MongoDB:
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
-            pipeline = [
-                {
-                    "$set": {
-                        "query_item.sticker_capsule": {
-                            "$cond": {
-                                "if": {'$eq': ['$query_item.sticker_capsule', None]},
-                                "then": market_spu.query_item.sticker_capsule,
-                                "else": {"$concat": ['$query_item.sticker_capsule', ' - ',
-                                                     market_spu.query_item.sticker_capsule]}
-                            }
-                        }
-                    }
-                }
-            ]
-            result = collection.update_one(condition, pipeline)
-            if not (result.acknowledged and result.modified_count == 1):
+            updated = {"$addToSet": {"query_item.sticker_capsule": market_spu.query_item.sticker_capsule}}
+            result = collection.update_one(condition, updated)
+            if not result.acknowledged:
                 logger.error(f"{condition} update $query_item.sticker_capsule failed.")
 
     # 更新印花类型
@@ -153,22 +141,9 @@ class MongoDB:
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
-            pipeline = [
-                {
-                    "$set": {
-                        "query_item.spray_capsule": {
-                            "$cond": {
-                                "if": {'$eq': ['$query_item.spray_capsule', None]},
-                                "then": market_spu.query_item.spray_capsule,
-                                "else": {"$concat": ['$query_item.sticker_category', ' - ',
-                                                     market_spu.query_item.spray_capsule]}
-                            }
-                        }
-                    }
-                }
-            ]
-            result = collection.update_one(condition, pipeline)
-            if not (result.acknowledged and result.modified_count == 1):
+            updated = {"$addToSet": {"query_item.spray_capsule": market_spu.query_item.spray_capsule}}
+            result = collection.update_one(condition, updated)
+            if not result.acknowledged:
                 logger.error(f"{condition} update $query_item.spray_capsule failed.")
 
     # 更新涂鸦类型
@@ -225,22 +200,9 @@ class MongoDB:
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
-            pipeline = [
-                {
-                    "$set": {
-                        "query_item.patch_capsule": {
-                            "$cond": {
-                                "if": {'$eq': ['$query_item.patch_capsule', None]},
-                                "then": market_spu.query_item.patch_capsule,
-                                "else": {"$concat": ['$query_item.patch_capsule', ' - ',
-                                                     market_spu.query_item.patch_capsule]}
-                            }
-                        }
-                    }
-                }
-            ]
-            result = collection.update_one(condition, pipeline)
-            if not (result.acknowledged and result.modified_count == 1):
+            updated = {"$addToSet": {"query_item.patch_capsule": market_spu.query_item.patch_capsule}}
+            result = collection.update_one(condition, updated)
+            if not result.acknowledged:
                 logger.error(f"{condition} update $query_item.patch_capsule failed.")
 
     # 更新布章类型

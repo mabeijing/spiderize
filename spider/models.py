@@ -3,6 +3,11 @@ from pydantic import BaseModel, fields
 
 
 class QueryItems(BaseModel):
+    """
+    和mongo的交互数据类型
+    1. 字段是数组的 => tournament, pro_player, tournament_team, sticker_capsule, spray_capsule, patch_capsule
+    2. 其他字段都是基本类型。
+    """
     rarity: Optional[str] = fields.Field(None)  # 品质 唯一属性
     quality: Optional[str] = fields.Field(None)  # 类别   唯一属性
     spu_type: Optional[str] = fields.Field(None, alias='type')  # 类型 唯一属性
@@ -13,11 +18,11 @@ class QueryItems(BaseModel):
     pro_player: list[Optional[str]] = fields.Field([])  # 职业选手 多属性
     tournament_team: list[Optional[str]] = fields.Field([])  # 战队 多属性
     sticker_category: Optional[str] = fields.Field(None)  # 印花类型 唯一属性
-    sticker_capsule: Optional[str] = fields.Field(None)  # 印花收藏品    ？？
-    spray_capsule: Optional[str] = fields.Field(None)  # 涂鸦收藏品  ？？
+    sticker_capsule: list[Optional[str]] = fields.Field([])  # 印花收藏品  多属性
+    spray_capsule: list[Optional[str]] = fields.Field([])  # 涂鸦收藏品  多属性
     spray_category: Optional[str] = fields.Field(None)  # 涂鸦类型  唯一属性
     spray_color_category: Optional[str] = fields.Field(None)  # 涂鸦颜色    唯一属性
-    patch_capsule: Optional[str] = fields.Field(None)  # 布章收藏品  ？？
+    patch_capsule: list[Optional[str]] = fields.Field([])  # 布章收藏品  多属性
     patch_category: Optional[str] = fields.Field(None)  # 布章类型  唯一属性
 
 
