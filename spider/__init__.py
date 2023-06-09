@@ -29,6 +29,7 @@ def bind_tag(name: str):
 class Spider:
 
     def __init__(self, only_update: bool = True):
+        init_basic_resources()
         self.session = requests.Session()
         self.mongo = MongoDB()
         self.counter: int = 0
@@ -36,7 +37,6 @@ class Spider:
         self.only_update: bool = only_update
         self.count: int = settings.COUNT
         self._init_session()
-        init_basic_resources()
 
     @staticmethod
     def base_query(func: Any) -> dict:
