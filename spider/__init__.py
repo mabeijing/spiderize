@@ -2,7 +2,7 @@ import time
 from typing import Optional, Any
 
 import requests
-from requests.exceptions import HTTPError
+from requests.exceptions import RequestException
 
 import settings
 from spider.models import MarketSPU
@@ -50,6 +50,7 @@ class Spider:
         self.session.headers.update({"accept-language": "zh-CN,zh"})
 
     def get_steam_market_spu(self, params: dict) -> list[Optional[MarketSPU]]:
+        time.sleep(settings.REQUEST_INTERVAL)
         response: requests.Response = self.session.get(settings.MARKET_URL, params=params, proxies=settings.PROXY_POOL)
         if response.status_code != 200:
             logger.warning(f"status_code =>{response.status_code}, wait {settings.DELAY_TIME}s and auto retry...")
@@ -57,10 +58,12 @@ class Spider:
             return self.get_steam_market_spu(params)
         try:
             results: list[Optional[dict]] = response.json()["results"]
+            total_count: int = response.json()['total_count']
+            tag_name: str = params.get("category_730_Type[]", "")
             self.counter += 1
-            logger.info(f"the {self.counter} requests success. length => {len(results)}")
+            logger.info(f"the {self.counter} requests success. {tag_name} => {total_count}")
             return [MarketSPU.validate(item) for item in results if item]
-        except HTTPError:
+        except RequestException:
             logger.error(f"resp.test = > {response.text}")
             time.sleep(settings.DELAY_TIME)
             return self.get_steam_market_spu(params)
@@ -70,6 +73,7 @@ class Spider:
 
     # 收藏品 => 武器，武器箱，探员
     def update_spu_item_set(self, query: dict):
+        self.counter = 0
         tags: list[str] = settings.get_sorted_resources("730_ItemSet.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.item_set.localized_key)
@@ -116,6 +120,7 @@ class Spider:
 
     # 锦标赛 => 武器，涂鸦, 印花, 武器箱
     def update_spu_tournament(self, query: dict):
+        self.counter = 0
         tags: list[str] = settings.get_sorted_resources("730_Tournament.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.tournament.localized_key)
@@ -162,6 +167,7 @@ class Spider:
 
     # 战队 => 武器，印花，涂鸦，布章
     def update_spu_tournament_team(self, query: dict):
+        self.counter = 0
         tags: list[str] = settings.get_sorted_resources("730_TournamentTeam.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.tournament_team.localized_key)
@@ -207,6 +213,7 @@ class Spider:
 
     # 职业选手 => 武器，印花
     def update_spu_pro_player(self, query: dict):
+        self.counter = 0
         tags: list[str] = settings.get_sorted_resources("730_ProPlayer.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.pro_player.localized_key)
@@ -252,6 +259,7 @@ class Spider:
 
     # 印花收藏品 => 印花
     def update_spu_sticker_capsule(self, query: dict):
+        self.counter = 0
         tags: list[str] = settings.get_sorted_resources("730_StickerCapsule.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.sticker_capsule.localized_key)
@@ -297,6 +305,7 @@ class Spider:
 
     # 印花类型 => 印花
     def update_spu_sticker_category(self, query: dict):
+        self.counter = 0
         tags: list[str] = settings.get_sorted_resources("730_StickerCategory.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.sticker_category.localized_key)
@@ -342,6 +351,7 @@ class Spider:
 
     # 涂鸦收藏品 => 涂鸦
     def update_spu_spray_capsule(self, query: dict):
+        self.counter = 0
         tags: list[str] = settings.get_sorted_resources("730_StickerCategory.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.spray_capsule.localized_key)
@@ -387,6 +397,7 @@ class Spider:
 
     # 涂鸦类型 => 涂鸦
     def update_spu_spray_category(self, query: dict):
+        self.counter = 0
         tags: list[str] = settings.get_sorted_resources("730_StickerCategory.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.spray_category.localized_key)
@@ -432,6 +443,7 @@ class Spider:
 
     # 涂鸦颜色 => 涂鸦
     def update_spu_spray_color_category(self, query: dict):
+        self.counter = 0
         tags: list[str] = settings.get_sorted_resources("730_SprayColorCategory.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.spray_color_category.localized_key)
@@ -477,6 +489,7 @@ class Spider:
 
     # 布章收藏品 => 布章
     def update_spu_patch_capsule(self, query: dict):
+        self.counter = 0
         tags: list[str] = settings.get_sorted_resources("730_PatchCapsule.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.patch_capsule.localized_key)
@@ -522,6 +535,7 @@ class Spider:
 
     # 布章类型 => 布章
     def update_spu_patch_category(self, query: dict):
+        self.counter = 0
         tags: list[str] = settings.get_sorted_resources("730_PatchCategory.json")
         try:
             tag_index: int = tags.index(self.cursor.current_point.patch_category.localized_key)
@@ -1640,4 +1654,3 @@ class Spider:
 
 if __name__ == '__main__':
     spider = Spider()
-

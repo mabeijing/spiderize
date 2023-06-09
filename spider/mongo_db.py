@@ -21,7 +21,8 @@ class MongoDB:
             one = collection.find_one({"hash_name": market_spu.hash_name})
             if not one:
                 need_insert_spu_array.append(market_spu)
-        logger.info(f"查询到{len(market_spu_array)}条数据，有{len(need_insert_spu_array)}条数据需要插库。")
+        if len(market_spu_array) != len(need_insert_spu_array):
+            logger.info(f"查询到{len(market_spu_array)}条数据，有{len(need_insert_spu_array)}条数据需要插库。")
         return need_insert_spu_array
 
     def check_duplicate_hash_name(self, func: Any):

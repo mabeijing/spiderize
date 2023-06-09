@@ -38,6 +38,9 @@ PROXY_POOL = {'http': 'http://proxy.vmware.com:3128', 'https': 'http://proxy.vmw
 # 请求被拦截后等待多久再次请求， 最少5分钟，请求默认25次后，会被限制，5分钟后解除
 DELAY_TIME = 300
 
+# 每次请求服务器，间隔时间
+REQUEST_INTERVAL = 1
+
 # 每次获取数据量， 目前最大100，超过100不生效
 COUNT = 100
 
