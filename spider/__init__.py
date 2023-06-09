@@ -10,6 +10,7 @@ from spider.mongo_db import MongoDB
 from spider.parser_asset import parser_market_spu
 from spider.mapping import SUPPORT_ASSET_MAP
 from scaffold.break_point import Cursor
+from scaffold.update_basic_resources import init_basic_resources
 
 logger = settings.get_logger()
 
@@ -29,12 +30,13 @@ class Spider:
 
     def __init__(self, only_update: bool = True):
         self.session = requests.Session()
-        self._init_session()
         self.mongo = MongoDB()
         self.counter: int = 0
         self.cursor: Cursor = Cursor()
         self.only_update: bool = only_update
         self.count: int = settings.COUNT
+        self._init_session()
+        init_basic_resources()
 
     @staticmethod
     def base_query(func: Any) -> dict:
@@ -1638,5 +1640,4 @@ class Spider:
 
 if __name__ == '__main__':
     spider = Spider()
-    spider.gem_weapon_smg_spu()
-    spider.gem_weapon_pistol_spu()
+

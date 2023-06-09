@@ -41,6 +41,12 @@ def generate_730_basic_resources():
     with open(tmp_file, mode="w", encoding="utf-8") as f:
         f.write(json.dumps(filter_data, ensure_ascii=False, indent=2))
 
+    basic_resource: dict[str, dict] = json.loads(tmp_file.read_bytes())
+
+    for name, resource in basic_resource.items():
+        with open(settings.RESOURCES.joinpath(name), mode="w", encoding="utf-8") as f:
+            f.write(json.dumps(resource, ensure_ascii=False, indent=2))
+
     settings.RESOURCES.joinpath(settings.CACHE_NAME).unlink(missing_ok=True)
 
 
@@ -60,9 +66,10 @@ def gem_weapon_map(file: Path):
 def update_after_expire(file: Path):
     create_time = os.path.getctime(file)
     current_time = time.time()
-    if current_time - create_time > settings.EXPIRE_TIME:
-        generate_730_basic_resources()
-        gem_weapon_map(file)
+    if settings.EXPIRE_TIME and isinstance(settings.EXPIRE_TIME, (int, float)):
+        if current_time - create_time > settings.EXPIRE_TIME:
+            generate_730_basic_resources()
+            gem_weapon_map(file)
 
 
 def init_basic_resources():
