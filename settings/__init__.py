@@ -5,7 +5,8 @@ import logging.config
 from pathlib import Path
 from typing import Optional
 from functools import lru_cache
-from settings import enums
+
+from spider.mapping import SUPPORT_ASSET_MAP
 
 import yaml
 
@@ -59,22 +60,11 @@ def get_sorted_resources(name: str) -> list[str]:
     return sorted(tags)
 
 
-mapping = {
-    "CSGO_Type_Pistol": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_Pistol},
-    "CSGO_Type_SMG": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_SMG},
-    "CSGO_Type_Rifle": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_Rifle},
-    "CSGO_Type_SniperRifle": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_SniperRifle},
-    "CSGO_Type_Shotgun": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_Shotgun},
-    "CSGO_Type_Machinegun": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_Machinegun},
-    "CSGO_Type_Knife": {"weapon": True, "exterior": True, "spu_type": enums.TypeItem.CSGO_Type_Knife},
-    "Type_Hands": {"weapon": False, "exterior": True},
-}
-
-
 def bind_tag(name: str):
     def inner(func):
         func.tag = f"tag_{name}"
-        assets: dict = mapping.get(name, {'weapon': False, 'exterior': False, "spu_type": None})
+        assets: dict = SUPPORT_ASSET_MAP.get(name, {'weapon': False, 'exterior': False})
+        assets.update({"spu_type": name})
         func.support_asset = assets
         return func
 
