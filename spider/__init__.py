@@ -5,13 +5,24 @@ import requests
 from requests.exceptions import HTTPError
 
 import settings
-from settings import bind_tag
 from spider.models import MarketSPU
 from spider.mongo_db import MongoDB
 from spider.parser_asset import parser_market_spu
+from spider.mapping import SUPPORT_ASSET_MAP
 from scaffold.break_point import Cursor
 
 logger = settings.get_logger()
+
+
+def bind_tag(name: str):
+    def inner(func):
+        func.tag = f"tag_{name}"
+        assets: dict = SUPPORT_ASSET_MAP.get(name, {'weapon': False, 'exterior': False})
+        assets.update({"spu_type": name})
+        func.support_asset = assets
+        return func
+
+    return inner
 
 
 class Spider:

@@ -6,8 +6,6 @@ from pathlib import Path
 from typing import Optional
 from functools import lru_cache
 
-from spider.mapping import SUPPORT_ASSET_MAP
-
 import yaml
 
 _variable_pattern: re.Pattern = re.compile(r'^\$\{(.*)}$')
@@ -58,17 +56,6 @@ def get_logger(config_yaml: str = "logging.yaml", **kwargs) -> logging.Logger:
 def get_sorted_resources(name: str) -> list[str]:
     tags: dict[str, dict] = json.loads(RESOURCES.joinpath(name).read_bytes())["tags"]
     return sorted(tags)
-
-
-def bind_tag(name: str):
-    def inner(func):
-        func.tag = f"tag_{name}"
-        assets: dict = SUPPORT_ASSET_MAP.get(name, {'weapon': False, 'exterior': False})
-        assets.update({"spu_type": name})
-        func.support_asset = assets
-        return func
-
-    return inner
 
 
 def _parser(config, kwargs: dict):
