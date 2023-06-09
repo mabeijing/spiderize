@@ -60,7 +60,7 @@ class Cursor:
     """
 
     def __init__(self):
-        self.cache_file = settings.RESOURCES.joinpath('.cache')
+        self.cache_file = settings.RESOURCES.joinpath(settings.CACHE_NAME)
         self.point = Point
         self._init_cache()
 

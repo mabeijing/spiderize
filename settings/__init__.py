@@ -16,23 +16,37 @@ SETTINGS = ROOT.joinpath("settings")
 
 RESOURCES = ROOT.joinpath("resources")
 
+# ------------------------- 运行配置参数 ----------------------
+
+# 缓存名字，默认无需改动。用于断点执行
+CACHE_NAME = '.cache'
+
+# 更新基础数据 用于判断是否需要更新
+BASIC_RESOURCES = '_basic_730_resources.json'
+
+# 基础数据更新时间 默认不更新， 如要更新EXPIRE_TIME = 7 * 24 * 60 * 60
+EXPIRE_TIME = None
+
+# ------------------------- 爬虫配置参数 ----------------------
+
 # steam 市场URL
 MARKET_URL = "https://steamcommunity.com/market/search/render"
-
-# 每次获取数据量
-COUNT = 100
-
-# 数据库配置
-MONGO_URI = "mongodb://root:example@localhost:27017"
-MONGO_DB = "steam_db"
-MONGO_COLLECTION = "steam_spu"
-
 # 请求是否加代理
 # PROXY_POOL = None
 PROXY_POOL = {'http': 'http://proxy.vmware.com:3128', 'https': 'http://proxy.vmware.com:3128'}
 
 # 请求被拦截后等待多久再次请求， 最少5分钟，请求默认25次后，会被限制，5分钟后解除
 DELAY_TIME = 300
+
+# 每次获取数据量， 目前最大100，超过100不生效
+COUNT = 100
+
+# ------------------------- 数据库配置参数 ----------------------
+
+# 数据库配置
+MONGO_URI = "mongodb://root:example@localhost:27017"
+MONGO_DB = "steam_db"
+MONGO_COLLECTION = "steam_spu"
 
 
 def db_config(env="dev") -> dict:
