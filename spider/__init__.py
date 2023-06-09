@@ -578,6 +578,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_pistol.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -638,6 +639,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_smg.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -697,6 +699,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_rifle.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -758,6 +761,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_sniper_rifle.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -817,6 +821,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_shotgun.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -876,6 +881,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_machinegun.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -935,6 +941,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_weapon_case.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -985,6 +992,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_custom_player.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1034,6 +1042,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_knife.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1081,6 +1090,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_sticker.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1142,6 +1152,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_hands.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1189,6 +1200,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_spray.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1251,6 +1263,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_patch.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1306,6 +1319,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_music_kit.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1352,6 +1366,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_collectible.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1398,6 +1413,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_weapon_case_key.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1444,6 +1460,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_ticket.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1490,6 +1507,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_gift.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1536,6 +1554,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_name_tag.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
@@ -1582,6 +1601,7 @@ class Spider:
         only_update: bool = only_update if only_update is not None else self.only_update
         if not only_update:
             index = self.cursor.current_point.csgo_type_tool.index
+            logger.info(f"本次执行，从index={index}开始请求。")
             while True:
                 params = {"start": index, "count": self.count}
                 params.update(query)
