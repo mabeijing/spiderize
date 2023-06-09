@@ -44,7 +44,8 @@ def generate_730_basic_resources():
     basic_resource: dict[str, dict] = json.loads(tmp_file.read_bytes())
 
     for name, resource in basic_resource.items():
-        with open(settings.RESOURCES.joinpath(name), mode="w", encoding="utf-8") as f:
+        file_name = f"{settings.RESOURCES.joinpath(name)}.json"
+        with open(file_name, mode="w", encoding="utf-8") as f:
             f.write(json.dumps(resource, ensure_ascii=False, indent=2))
 
     settings.RESOURCES.joinpath(settings.CACHE_NAME).unlink(missing_ok=True)
