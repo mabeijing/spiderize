@@ -43,6 +43,9 @@ def db_config(env="dev") -> dict:
 
 def get_logger(config_yaml: str = "logging.yaml", **kwargs) -> logging.Logger:
     config: dict = yaml.safe_load(SETTINGS.joinpath(config_yaml).read_bytes())
+    log_dir = ROOT.joinpath('logs')
+    if not log_dir.exists():
+        log_dir.mkdir()
     default_kwargs = {"logfile": f"{ROOT.joinpath('logs', 'running.log')}"}
     default_kwargs.update(kwargs)
     parsed_config = _parser(config, default_kwargs)
@@ -108,5 +111,4 @@ def _parser(config, kwargs: dict):
 
 
 if __name__ == '__main__':
-    data = get_sorted_resources("730_Type.json")
-    print(data)
+    get_logger()

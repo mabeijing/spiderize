@@ -79,6 +79,9 @@ class Spider:
                 markets_spu_array = self.get_steam_market_spu(params)
                 if not markets_spu_array:
                     logger.warning(f"收藏品ItemSet：{tag} => 没有数据了。")
+                    point = self.cursor.current_point
+                    point.item_set.index = 0
+                    self.cursor.save(point)
                     break
 
                 for markets_spu in markets_spu_array:
@@ -93,6 +96,9 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
+                    point = self.cursor.current_point
+                    point.item_set.index = 0
+                    self.cursor.save(point)
                     break
 
     # 锦标赛 => 武器，涂鸦, 印花, 武器箱
@@ -119,6 +125,9 @@ class Spider:
                 markets_spu_array = self.get_steam_market_spu(params)
                 if not markets_spu_array:
                     logger.warning(f"锦标赛Tournament：{tag} => 没有数据了。")
+                    point = self.cursor.current_point
+                    point.tournament.index = 0
+                    self.cursor.save(point)
                     break
 
                 for markets_spu in markets_spu_array:
@@ -133,6 +142,9 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
+                    point = self.cursor.current_point
+                    point.tournament.index = 0
+                    self.cursor.save(point)
                     break
 
     # 战队 => 武器，印花，涂鸦，布章
@@ -159,6 +171,9 @@ class Spider:
                 markets_spu_array = self.get_steam_market_spu(params)
                 if not markets_spu_array:
                     logger.warning(f"战队TournamentTeam：{tag} => 没有数据了。")
+                    point = self.cursor.current_point
+                    point.tournament_team.index = 0
+                    self.cursor.save(point)
                     break
 
                 for markets_spu in markets_spu_array:
@@ -172,6 +187,9 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
+                    point = self.cursor.current_point
+                    point.tournament_team.index = 0
+                    self.cursor.save(point)
                     break
 
     # 职业选手 => 武器，印花
@@ -198,6 +216,9 @@ class Spider:
                 markets_spu_array = self.get_steam_market_spu(params)
                 if not markets_spu_array:
                     logger.warning(f"职业选手ProPlayer：{tag} => 没有数据了。")
+                    point = self.cursor.current_point
+                    point.pro_player.index = 0
+                    self.cursor.save(point)
                     break
 
                 for markets_spu in markets_spu_array:
@@ -211,6 +232,9 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
+                    point = self.cursor.current_point
+                    point.pro_player.index = 0
+                    self.cursor.save(point)
                     break
 
     # 印花收藏品 => 印花
@@ -237,6 +261,9 @@ class Spider:
                 markets_spu_array = self.get_steam_market_spu(params)
                 if not markets_spu_array:
                     logger.warning(f"印花收藏品StickerCapsule：{tag} => 没有数据了。")
+                    point = self.cursor.current_point
+                    point.sticker_capsule.index = 0
+                    self.cursor.save(point)
                     break
 
                 for markets_spu in markets_spu_array:
@@ -250,6 +277,9 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
+                    point = self.cursor.current_point
+                    point.sticker_capsule.index = 0
+                    self.cursor.save(point)
                     break
 
     # 印花类型 => 印花
@@ -276,6 +306,9 @@ class Spider:
                 markets_spu_array = self.get_steam_market_spu(params)
                 if not markets_spu_array:
                     logger.warning(f"印花类型StickerCategory：{tag} => 没有数据了。")
+                    point = self.cursor.current_point
+                    point.sticker_category.index = 0
+                    self.cursor.save(point)
                     break
 
                 for markets_spu in markets_spu_array:
@@ -289,6 +322,9 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
+                    point = self.cursor.current_point
+                    point.sticker_category.index = 0
+                    self.cursor.save(point)
                     break
 
     # 涂鸦收藏品 => 涂鸦
@@ -315,6 +351,9 @@ class Spider:
                 markets_spu_array = self.get_steam_market_spu(params)
                 if not markets_spu_array:
                     logger.warning(f"涂鸦收藏品SprayCapsule：{tag} => 没有数据了。")
+                    point = self.cursor.current_point
+                    point.spray_capsule.index = 0
+                    self.cursor.save(point)
                     break
 
                 for markets_spu in markets_spu_array:
@@ -328,6 +367,9 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
+                    point = self.cursor.current_point
+                    point.spray_capsule.index = 0
+                    self.cursor.save(point)
                     break
 
     # 涂鸦类型 => 涂鸦
@@ -354,6 +396,9 @@ class Spider:
                 markets_spu_array = self.get_steam_market_spu(params)
                 if not markets_spu_array:
                     logger.warning(f"涂鸦类型SprayCategory：{tag} => 没有数据了。")
+                    point = self.cursor.current_point
+                    point.spray_category.index = 0
+                    self.cursor.save(point)
                     break
 
                 for markets_spu in markets_spu_array:
@@ -367,6 +412,9 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
+                    point = self.cursor.current_point
+                    point.spray_category.index = 0
+                    self.cursor.save(point)
                     break
 
     # 涂鸦颜色 => 涂鸦
@@ -393,6 +441,9 @@ class Spider:
                 markets_spu_array = self.get_steam_market_spu(params)
                 if not markets_spu_array:
                     logger.warning(f"涂鸦颜色SprayColorCategory：{tag} => 没有数据了。")
+                    point = self.cursor.current_point
+                    point.spray_color_category.index = 0
+                    self.cursor.save(point)
                     break
 
                 for markets_spu in markets_spu_array:
@@ -406,6 +457,9 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
+                    point = self.cursor.current_point
+                    point.spray_color_category.index = 0
+                    self.cursor.save(point)
                     break
 
     # 布章收藏品 => 布章
@@ -432,6 +486,9 @@ class Spider:
                 markets_spu_array = self.get_steam_market_spu(params)
                 if not markets_spu_array:
                     logger.warning(f"布章收藏品PatchCapsule：{tag} => 没有数据了。")
+                    point = self.cursor.current_point
+                    point.patch_capsule.index = 0
+                    self.cursor.save(point)
                     break
 
                 for markets_spu in markets_spu_array:
@@ -445,6 +502,9 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
+                    point = self.cursor.current_point
+                    point.patch_capsule.index = 0
+                    self.cursor.save(point)
                     break
 
     # 布章类型 => 布章
@@ -471,6 +531,9 @@ class Spider:
                 markets_spu_array = self.get_steam_market_spu(params)
                 if not markets_spu_array:
                     logger.warning(f"布章类型PatchCategory：{tag} => 没有数据了。")
+                    point = self.cursor.current_point
+                    point.patch_category.index = 0
+                    self.cursor.save(point)
                     break
 
                 for markets_spu in markets_spu_array:
@@ -484,6 +547,9 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
+                    point = self.cursor.current_point
+                    point.patch_category.index = 0
+                    self.cursor.save(point)
                     break
 
     @bind_tag("CSGO_Type_Pistol")
@@ -506,6 +572,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_pistol.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -524,10 +593,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_pistol.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_weapon_pistol_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_weapon_pistol_spu)
 
         # 查询并更新收藏品
         self.update_spu_item_set(query)
@@ -560,6 +632,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_smg.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -577,10 +652,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_smg.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_weapon_smg_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_weapon_smg_spu)
 
         # 查询并更新收藏品
         self.update_spu_item_set(query)
@@ -613,6 +691,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_rifle.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -632,10 +713,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_rifle.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_weapon_rifle_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_weapon_rifle_spu)
 
         # 查询并更新收藏品
         self.update_spu_item_set(query)
@@ -668,6 +752,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_sniper_rifle.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -685,10 +772,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_sniper_rifle.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_weapon_sniper_rifle_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_weapon_sniper_rifle_spu)
 
         # 查询并更新收藏品
         self.update_spu_item_set(query)
@@ -721,6 +811,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_shotgun.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -738,10 +831,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_shotgun.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_weapon_shotgun_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_weapon_shotgun_spu)
 
         # 查询并更新收藏品
         self.update_spu_item_set(query)
@@ -774,6 +870,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_machinegun.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -791,10 +890,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_machinegun.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_weapon_machinegun_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_weapon_machinegun_spu)
 
         # 查询并更新收藏品
         self.update_spu_item_set(query)
@@ -827,6 +929,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_weapon_case.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -844,10 +949,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_weapon_case.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_weapon_case_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_weapon_case_spu)
 
         # 查询并更新收藏品
         self.update_spu_item_set(query)
@@ -871,6 +979,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_custom_player.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -888,10 +999,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_custom_player.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_custom_player_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_custom_player_spu)
 
         # 查询并更新收藏品
         self.update_spu_item_set(query)
@@ -914,6 +1028,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_knife.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -931,10 +1048,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_knife.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_knife_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_knife_spu)
 
     @bind_tag("CSGO_Tool_Sticker")
     def gem_sticker_spu(self, only_update: bool = None):
@@ -955,6 +1075,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_sticker.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -972,10 +1095,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_sticker.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_sticker_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_sticker_spu)
 
         # 更新印花收藏品
         self.update_spu_sticker_capsule(query)
@@ -1010,6 +1136,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_hands.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -1027,10 +1156,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_hands.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_hands_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_hands_spu)
 
     @bind_tag("CSGO_Type_Spray")
     def gem_spray_spu(self, only_update: bool = None):
@@ -1051,6 +1183,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_spray.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -1068,10 +1203,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_spray.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_spray_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_spray_spu)
 
         # 更新涂鸦收藏品
         self.update_spu_spray_capsule(query)
@@ -1107,6 +1245,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_patch.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -1124,10 +1265,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_patch.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_patch_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_patch_spu)
 
         # 更新布章收藏品
         self.update_spu_patch_capsule(query)
@@ -1156,6 +1300,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_music_kit.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -1173,10 +1320,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_music_kit.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_music_kit_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_music_kit_spu)
 
     @bind_tag("CSGO_Type_Collectible")
     def gem_collectible_spu(self, only_update: bool = None):
@@ -1196,6 +1346,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_collectible.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -1213,10 +1366,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_collectible.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_collectible_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_collectible_spu)
 
     @bind_tag("CSGO_Tool_WeaponCase_KeyTag")
     def gem_weapon_case_key_spu(self, only_update: bool = None):
@@ -1236,6 +1392,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_weapon_case_key.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -1253,10 +1412,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_weapon_case_key.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_weapon_case_key_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_weapon_case_key_spu)
 
     @bind_tag("CSGO_Type_Ticket")
     def gem_weapon_ticket_spu(self, only_update: bool = None):
@@ -1276,6 +1438,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_ticket.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -1293,10 +1458,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_ticket.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_weapon_ticket_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_weapon_ticket_spu)
 
     @bind_tag("CSGO_Tool_GiftTag")
     def gem_gift_spu(self, only_update: bool = None):
@@ -1316,6 +1484,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_gift.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -1333,10 +1504,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_gift.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_gift_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_gift_spu)
 
     @bind_tag("CSGO_Tool_Name_TagTag")
     def gem_name_tag_spu(self, only_update: bool = None):
@@ -1356,6 +1530,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_name_tag.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -1373,10 +1550,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_name_tag.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_name_tag_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_name_tag_spu)
 
     @bind_tag("CSGO_Type_Tool")
     def gem_tool_spu(self, only_update: bool = None):
@@ -1396,6 +1576,9 @@ class Spider:
                 params.update(query)
                 markets_spu = self.get_steam_market_spu(params)
                 if not markets_spu:
+                    point = self.cursor.current_point
+                    point.csgo_type_tool.index = 0
+                    self.cursor.save(point)
                     break
 
                 # 查询出数据库中没有的数据
@@ -1413,10 +1596,13 @@ class Spider:
                 self.cursor.save(point)
 
                 if len(markets_spu) < self.count:
+                    point = self.cursor.current_point
+                    point.csgo_type_tool.index = 0
+                    self.cursor.save(point)
                     break
 
-        # 检查是否插入了重复数据
-        self.mongo.check_duplicate_hash_name(self.gem_tool_spu)
+            # 检查是否插入了重复数据
+            self.mongo.check_duplicate_hash_name(self.gem_tool_spu)
 
 
 if __name__ == '__main__':
