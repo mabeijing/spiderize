@@ -133,6 +133,15 @@ WEAPON_NAME_MAP = {
     "骷髅匕首": "weapon_knife_skeleton"
 }
 
+EXTERIOR_NAME_MAP = {
+    "无涂装": "WearCategoryNA",
+    "崭新出厂": "WearCategory0",
+    "略有磨损": "WearCategory1",
+    "久经沙场": "WearCategory2",
+    "破损不堪": "WearCategory3",
+    "战痕累累": "WearCategory4"
+}
+
 
 def _weapon_rarity_duplex_map(rarity_tag: str = None, localized_name: str = None):
     """
