@@ -51,20 +51,9 @@ class MongoDB:
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
-            pipeline = [
-                {
-                    "$set": {
-                        "query_item.item_set": {
-                            "$cond": {
-                                "if": {'$eq': ['$query_item.item_set', None]},
-                                "then": market_spu.query_item.item_set,
-                                "else": {"$concat": ['$query_item.item_set', ' - ', market_spu.query_item.item_set]}
-                            }
-                        }
-                    }
-                }
-            ]
-            result = collection.update_one(condition, pipeline)
+            updated = {"$set": {"query_item.item_set": market_spu.query_item.item_set}}
+
+            result = collection.update_one(condition, updated)
             if not (result.acknowledged and result.modified_count == 1):
                 logger.error(f"{condition} update $query_item.item_set failed.")
 
@@ -118,21 +107,9 @@ class MongoDB:
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
-            pipeline = [
-                {
-                    "$set": {
-                        "query_item.sticker_category": {
-                            "$cond": {
-                                "if": {'$eq': ['$query_item.sticker_category', None]},
-                                "then": market_spu.query_item.sticker_category,
-                                "else": {"$concat": ['$query_item.sticker_category', ' - ',
-                                                     market_spu.query_item.sticker_category]}
-                            }
-                        }
-                    }
-                }
-            ]
-            result = collection.update_one(condition, pipeline)
+            updated = {"$set": {"query_item.sticker_category": market_spu.query_item.sticker_category}}
+
+            result = collection.update_one(condition, updated)
             if not (result.acknowledged and result.modified_count == 1):
                 logger.error(f"{condition} update $query_item.sticker_category failed.")
 
@@ -153,21 +130,9 @@ class MongoDB:
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
-            pipeline = [
-                {
-                    "$set": {
-                        "query_item.spray_category": {
-                            "$cond": {
-                                "if": {'$eq': ['$query_item.spray_category', None]},
-                                "then": market_spu.query_item.spray_category,
-                                "else": {"$concat": ['$query_item.spray_category', ' - ',
-                                                     market_spu.query_item.spray_category]}
-                            }
-                        }
-                    }
-                }
-            ]
-            result = collection.update_one(condition, pipeline)
+            updated = {"$set": {"query_item.spray_category": market_spu.query_item.spray_category}}
+
+            result = collection.update_one(condition, updated)
             if not (result.acknowledged and result.modified_count == 1):
                 logger.error(f"{condition} update $query_item.spray_category failed.")
 
@@ -177,21 +142,9 @@ class MongoDB:
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
-            pipeline = [
-                {
-                    "$set": {
-                        "query_item.spray_color_category": {
-                            "$cond": {
-                                "if": {'$eq': ['$query_item.spray_color_category', None]},
-                                "then": market_spu.query_item.spray_color_category,
-                                "else": {"$concat": ['$query_item.spray_color_category', ' - ',
-                                                     market_spu.query_item.spray_color_category]}
-                            }
-                        }
-                    }
-                }
-            ]
-            result = collection.update_one(condition, pipeline)
+            updated = {"$set": {"query_item.spray_color_category": market_spu.query_item.spray_color_category}}
+
+            result = collection.update_one(condition, updated)
             if not (result.acknowledged and result.modified_count == 1):
                 logger.error(f"{condition} update $query_item.spray_color_category failed.")
 
@@ -212,20 +165,8 @@ class MongoDB:
         collection = database.get_collection(settings.MONGO_COLLECTION)
         for market_spu in market_spu_array:
             condition = {"hash_name": market_spu.hash_name}
-            pipeline = [
-                {
-                    "$set": {
-                        "query_item.patch_category": {
-                            "$cond": {
-                                "if": {'$eq': ['$query_item.patch_category', None]},
-                                "then": market_spu.query_item.patch_category,
-                                "else": {"$concat": ['$query_item.patch_category', ' - ',
-                                                     market_spu.query_item.patch_category]}
-                            }
-                        }
-                    }
-                }
-            ]
-            result = collection.update_one(condition, pipeline)
+            updated = {"$set": {"query_item.patch_category": market_spu.query_item.patch_category}}
+
+            result = collection.update_one(condition, updated)
             if not (result.acknowledged and result.modified_count == 1):
                 logger.error(f"{condition} update $query_item.patch_category failed.")

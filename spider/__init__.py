@@ -28,13 +28,14 @@ def bind_tag(name: str):
 
 class Spider:
 
-    def __init__(self, only_update: bool = True):
+    def __init__(self, only_update: bool = True, ignore_breakpoint: bool = False):
         init_basic_resources()
         self.session = requests.Session()
         self.mongo = MongoDB()
         self.counter: int = 0
         self.cursor: Cursor = Cursor()
         self.only_update: bool = only_update
+        self.ignore_breakpoint: bool = ignore_breakpoint
         self.count: int = settings.COUNT
         self._init_session()
 
@@ -72,14 +73,17 @@ class Spider:
             exit(500)
 
     # 收藏品 => 武器，武器箱，探员
-    def update_spu_item_set(self, query: dict):
-        self.counter = 0
+    def update_spu_item_set(self, query: dict, ignore_breakpoint: bool):
         tags: list[str] = settings.get_sorted_resources("730_ItemSet.json")
-        try:
-            tag_index: int = tags.index(self.cursor.current_point.item_set.localized_key)
-            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
-        except ValueError:
+
+        if ignore_breakpoint:
             tag_index = 0
+        else:
+            try:
+                tag_index: int = tags.index(self.cursor.current_point.item_set.localized_key)
+                logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+            except ValueError:
+                tag_index = 0
 
         total_tags = tags[tag_index:]
         for i, tag in enumerate(total_tags, start=1):
@@ -91,6 +95,7 @@ class Spider:
 
             index = self.cursor.current_point.item_set.index
             while True:
+                self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_ItemSet[]": f"tag_{tag}"}
                 params.update(query)
                 markets_spu_array = self.get_steam_market_spu(params)
@@ -119,14 +124,17 @@ class Spider:
                     break
 
     # 锦标赛 => 武器，涂鸦, 印花, 武器箱
-    def update_spu_tournament(self, query: dict):
-        self.counter = 0
+    def update_spu_tournament(self, query: dict, ignore_breakpoint: bool):
         tags: list[str] = settings.get_sorted_resources("730_Tournament.json")
-        try:
-            tag_index: int = tags.index(self.cursor.current_point.tournament.localized_key)
-            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
-        except ValueError:
+
+        if ignore_breakpoint:
             tag_index = 0
+        else:
+            try:
+                tag_index: int = tags.index(self.cursor.current_point.tournament.localized_key)
+                logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+            except ValueError:
+                tag_index = 0
 
         total_tags = tags[tag_index:]
         for i, tag in enumerate(total_tags, start=1):
@@ -138,6 +146,7 @@ class Spider:
 
             index = self.cursor.current_point.tournament.index
             while True:
+                self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_Tournament[]": f"tag_{tag}"}
                 params.update(query)
                 markets_spu_array = self.get_steam_market_spu(params)
@@ -166,14 +175,17 @@ class Spider:
                     break
 
     # 战队 => 武器，印花，涂鸦，布章
-    def update_spu_tournament_team(self, query: dict):
-        self.counter = 0
+    def update_spu_tournament_team(self, query: dict, ignore_breakpoint: bool):
         tags: list[str] = settings.get_sorted_resources("730_TournamentTeam.json")
-        try:
-            tag_index: int = tags.index(self.cursor.current_point.tournament_team.localized_key)
-            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
-        except ValueError:
+
+        if ignore_breakpoint:
             tag_index = 0
+        else:
+            try:
+                tag_index: int = tags.index(self.cursor.current_point.tournament_team.localized_key)
+                logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+            except ValueError:
+                tag_index = 0
 
         total_tags = tags[tag_index:]
         for i, tag in enumerate(total_tags, start=1):
@@ -185,6 +197,7 @@ class Spider:
 
             index = self.cursor.current_point.tournament_team.index
             while True:
+                self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_TournamentTeam[]": f"tag_{tag}"}
                 params.update(query)
                 markets_spu_array = self.get_steam_market_spu(params)
@@ -212,14 +225,17 @@ class Spider:
                     break
 
     # 职业选手 => 武器，印花
-    def update_spu_pro_player(self, query: dict):
-        self.counter = 0
+    def update_spu_pro_player(self, query: dict, ignore_breakpoint: bool):
         tags: list[str] = settings.get_sorted_resources("730_ProPlayer.json")
-        try:
-            tag_index: int = tags.index(self.cursor.current_point.pro_player.localized_key)
-            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
-        except ValueError:
+
+        if ignore_breakpoint:
             tag_index = 0
+        else:
+            try:
+                tag_index: int = tags.index(self.cursor.current_point.pro_player.localized_key)
+                logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+            except ValueError:
+                tag_index = 0
 
         total_tags = tags[tag_index:]
         for i, tag in enumerate(total_tags, start=1):
@@ -231,6 +247,7 @@ class Spider:
 
             index = self.cursor.current_point.pro_player.index
             while True:
+                self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_ProPlayer[]": f"tag_{tag}"}
                 params.update(query)
                 markets_spu_array = self.get_steam_market_spu(params)
@@ -258,14 +275,17 @@ class Spider:
                     break
 
     # 印花收藏品 => 印花
-    def update_spu_sticker_capsule(self, query: dict):
-        self.counter = 0
+    def update_spu_sticker_capsule(self, query: dict, ignore_breakpoint: bool):
         tags: list[str] = settings.get_sorted_resources("730_StickerCapsule.json")
-        try:
-            tag_index: int = tags.index(self.cursor.current_point.sticker_capsule.localized_key)
-            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
-        except ValueError:
+
+        if ignore_breakpoint:
             tag_index = 0
+        else:
+            try:
+                tag_index: int = tags.index(self.cursor.current_point.sticker_capsule.localized_key)
+                logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+            except ValueError:
+                tag_index = 0
 
         total_tags = tags[tag_index:]
         for i, tag in enumerate(total_tags, start=1):
@@ -277,6 +297,7 @@ class Spider:
 
             index = self.cursor.current_point.sticker_capsule.index
             while True:
+                self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_StickerCapsule[]": f"tag_{tag}"}
                 params.update(query)
                 markets_spu_array = self.get_steam_market_spu(params)
@@ -304,14 +325,17 @@ class Spider:
                     break
 
     # 印花类型 => 印花
-    def update_spu_sticker_category(self, query: dict):
-        self.counter = 0
+    def update_spu_sticker_category(self, query: dict, ignore_breakpoint: bool):
         tags: list[str] = settings.get_sorted_resources("730_StickerCategory.json")
-        try:
-            tag_index: int = tags.index(self.cursor.current_point.sticker_category.localized_key)
-            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
-        except ValueError:
+
+        if ignore_breakpoint:
             tag_index = 0
+        else:
+            try:
+                tag_index: int = tags.index(self.cursor.current_point.sticker_category.localized_key)
+                logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+            except ValueError:
+                tag_index = 0
 
         total_tags = tags[tag_index:]
         for i, tag in enumerate(total_tags, start=1):
@@ -323,6 +347,7 @@ class Spider:
 
             index = self.cursor.current_point.sticker_category.index
             while True:
+                self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_StickerCategory[]": f"tag_{tag}"}
                 params.update(query)
                 markets_spu_array = self.get_steam_market_spu(params)
@@ -350,14 +375,17 @@ class Spider:
                     break
 
     # 涂鸦收藏品 => 涂鸦
-    def update_spu_spray_capsule(self, query: dict):
-        self.counter = 0
+    def update_spu_spray_capsule(self, query: dict, ignore_breakpoint: bool):
         tags: list[str] = settings.get_sorted_resources("730_StickerCategory.json")
-        try:
-            tag_index: int = tags.index(self.cursor.current_point.spray_capsule.localized_key)
-            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
-        except ValueError:
+
+        if ignore_breakpoint:
             tag_index = 0
+        else:
+            try:
+                tag_index: int = tags.index(self.cursor.current_point.spray_capsule.localized_key)
+                logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+            except ValueError:
+                tag_index = 0
 
         total_tags = tags[tag_index:]
         for i, tag in enumerate(total_tags, start=1):
@@ -369,6 +397,7 @@ class Spider:
 
             index = self.cursor.current_point.spray_capsule.index
             while True:
+                self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_SprayCapsule[]": f"tag_{tag}"}
                 params.update(query)
                 markets_spu_array = self.get_steam_market_spu(params)
@@ -396,14 +425,17 @@ class Spider:
                     break
 
     # 涂鸦类型 => 涂鸦
-    def update_spu_spray_category(self, query: dict):
-        self.counter = 0
+    def update_spu_spray_category(self, query: dict, ignore_breakpoint: bool):
         tags: list[str] = settings.get_sorted_resources("730_StickerCategory.json")
-        try:
-            tag_index: int = tags.index(self.cursor.current_point.spray_category.localized_key)
-            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
-        except ValueError:
+
+        if ignore_breakpoint:
             tag_index = 0
+        else:
+            try:
+                tag_index: int = tags.index(self.cursor.current_point.spray_category.localized_key)
+                logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+            except ValueError:
+                tag_index = 0
 
         total_tags = tags[tag_index:]
         for i, tag in enumerate(total_tags, start=1):
@@ -415,6 +447,7 @@ class Spider:
 
             index = self.cursor.current_point.spray_category.index
             while True:
+                self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_SprayCategory[]": f"tag_{tag}"}
                 params.update(query)
                 markets_spu_array = self.get_steam_market_spu(params)
@@ -442,14 +475,17 @@ class Spider:
                     break
 
     # 涂鸦颜色 => 涂鸦
-    def update_spu_spray_color_category(self, query: dict):
-        self.counter = 0
+    def update_spu_spray_color_category(self, query: dict, ignore_breakpoint: bool):
         tags: list[str] = settings.get_sorted_resources("730_SprayColorCategory.json")
-        try:
-            tag_index: int = tags.index(self.cursor.current_point.spray_color_category.localized_key)
-            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
-        except ValueError:
+
+        if ignore_breakpoint:
             tag_index = 0
+        else:
+            try:
+                tag_index: int = tags.index(self.cursor.current_point.spray_color_category.localized_key)
+                logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+            except ValueError:
+                tag_index = 0
 
         total_tags = tags[tag_index:]
         for i, tag in enumerate(total_tags, start=1):
@@ -461,6 +497,7 @@ class Spider:
 
             index = self.cursor.current_point.spray_color_category.index
             while True:
+                self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_SprayColorCategory[]": f"tag_{tag}"}
                 params.update(query)
                 markets_spu_array = self.get_steam_market_spu(params)
@@ -488,14 +525,17 @@ class Spider:
                     break
 
     # 布章收藏品 => 布章
-    def update_spu_patch_capsule(self, query: dict):
-        self.counter = 0
+    def update_spu_patch_capsule(self, query: dict, ignore_breakpoint: bool):
         tags: list[str] = settings.get_sorted_resources("730_PatchCapsule.json")
-        try:
-            tag_index: int = tags.index(self.cursor.current_point.patch_capsule.localized_key)
-            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
-        except ValueError:
+
+        if ignore_breakpoint:
             tag_index = 0
+        else:
+            try:
+                tag_index: int = tags.index(self.cursor.current_point.patch_capsule.localized_key)
+                logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+            except ValueError:
+                tag_index = 0
 
         total_tags = tags[tag_index:]
         for i, tag in enumerate(total_tags, start=1):
@@ -507,6 +547,7 @@ class Spider:
 
             index = self.cursor.current_point.patch_capsule.index
             while True:
+                self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_PatchCapsule[]": f"tag_{tag}"}
                 params.update(query)
                 markets_spu_array = self.get_steam_market_spu(params)
@@ -534,14 +575,17 @@ class Spider:
                     break
 
     # 布章类型 => 布章
-    def update_spu_patch_category(self, query: dict):
-        self.counter = 0
+    def update_spu_patch_category(self, query: dict, ignore_breakpoint: bool):
         tags: list[str] = settings.get_sorted_resources("730_PatchCategory.json")
-        try:
-            tag_index: int = tags.index(self.cursor.current_point.patch_category.localized_key)
-            logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
-        except ValueError:
+
+        if ignore_breakpoint:
             tag_index = 0
+        else:
+            try:
+                tag_index: int = tags.index(self.cursor.current_point.patch_category.localized_key)
+                logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
+            except ValueError:
+                tag_index = 0
 
         total_tags = tags[tag_index:]
         for i, tag in enumerate(total_tags, start=1):
@@ -553,6 +597,7 @@ class Spider:
 
             index = self.cursor.current_point.patch_category.index
             while True:
+                self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_PatchCategory[]": f"tag_{tag}"}
                 params.update(query)
                 markets_spu_array = self.get_steam_market_spu(params)
@@ -580,7 +625,7 @@ class Spider:
                     break
 
     @bind_tag("CSGO_Type_Pistol")
-    def gem_weapon_pistol_spu(self, only_update: bool = None):
+    def gem_weapon_pistol_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
         """
         手枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -629,20 +674,22 @@ class Spider:
             # 检查是否插入了重复数据
             self.mongo.check_duplicate_hash_name(self.gem_weapon_pistol_spu)
 
+        ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
+
         # 查询并更新收藏品
-        self.update_spu_item_set(query)
+        self.update_spu_item_set(query, ignore_breakpoint)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query)
+        self.update_spu_tournament(query, ignore_breakpoint)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query)
+        self.update_spu_tournament_team(query, ignore_breakpoint)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query)
+        self.update_spu_pro_player(query, ignore_breakpoint)
 
     @bind_tag("CSGO_Type_SMG")
-    def gem_weapon_smg_spu(self, only_update: bool = None):
+    def gem_weapon_smg_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
         """
         微型冲锋枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -689,20 +736,22 @@ class Spider:
             # 检查是否插入了重复数据
             self.mongo.check_duplicate_hash_name(self.gem_weapon_smg_spu)
 
+        ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
+
         # 查询并更新收藏品
-        self.update_spu_item_set(query)
+        self.update_spu_item_set(query, ignore_breakpoint)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query)
+        self.update_spu_tournament(query, ignore_breakpoint)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query)
+        self.update_spu_tournament_team(query, ignore_breakpoint)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query)
+        self.update_spu_pro_player(query, ignore_breakpoint)
 
     @bind_tag("CSGO_Type_Rifle")
-    def gem_weapon_rifle_spu(self, only_update: bool = None):
+    def gem_weapon_rifle_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
         """
         步枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -751,20 +800,22 @@ class Spider:
             # 检查是否插入了重复数据
             self.mongo.check_duplicate_hash_name(self.gem_weapon_rifle_spu)
 
+        ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
+
         # 查询并更新收藏品
-        self.update_spu_item_set(query)
+        self.update_spu_item_set(query, ignore_breakpoint)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query)
+        self.update_spu_tournament(query, ignore_breakpoint)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query)
+        self.update_spu_tournament_team(query, ignore_breakpoint)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query)
+        self.update_spu_pro_player(query, ignore_breakpoint)
 
     @bind_tag("CSGO_Type_SniperRifle")
-    def gem_weapon_sniper_rifle_spu(self, only_update: bool = None):
+    def gem_weapon_sniper_rifle_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
         """
         狙击步枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -811,20 +862,22 @@ class Spider:
             # 检查是否插入了重复数据
             self.mongo.check_duplicate_hash_name(self.gem_weapon_sniper_rifle_spu)
 
+        ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
+
         # 查询并更新收藏品
-        self.update_spu_item_set(query)
+        self.update_spu_item_set(query, ignore_breakpoint)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query)
+        self.update_spu_tournament(query, ignore_breakpoint)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query)
+        self.update_spu_tournament_team(query, ignore_breakpoint)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query)
+        self.update_spu_pro_player(query, ignore_breakpoint)
 
     @bind_tag("CSGO_Type_Shotgun")
-    def gem_weapon_shotgun_spu(self, only_update: bool = None):
+    def gem_weapon_shotgun_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
         """
         霰弹枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -871,20 +924,22 @@ class Spider:
             # 检查是否插入了重复数据
             self.mongo.check_duplicate_hash_name(self.gem_weapon_shotgun_spu)
 
+        ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
+
         # 查询并更新收藏品
-        self.update_spu_item_set(query)
+        self.update_spu_item_set(query, ignore_breakpoint)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query)
+        self.update_spu_tournament(query, ignore_breakpoint)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query)
+        self.update_spu_tournament_team(query, ignore_breakpoint)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query)
+        self.update_spu_pro_player(query, ignore_breakpoint)
 
     @bind_tag("CSGO_Type_Machinegun")
-    def gem_weapon_machinegun_spu(self, only_update: bool = None):
+    def gem_weapon_machinegun_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
         """
         机枪
          -可解析： 类型，品质，类别，武器名，外观
@@ -931,20 +986,22 @@ class Spider:
             # 检查是否插入了重复数据
             self.mongo.check_duplicate_hash_name(self.gem_weapon_machinegun_spu)
 
+        ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
+
         # 查询并更新收藏品
-        self.update_spu_item_set(query)
+        self.update_spu_item_set(query, ignore_breakpoint)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query)
+        self.update_spu_tournament(query, ignore_breakpoint)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query)
+        self.update_spu_tournament_team(query, ignore_breakpoint)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query)
+        self.update_spu_pro_player(query, ignore_breakpoint)
 
     @bind_tag("CSGO_Type_WeaponCase")
-    def gem_weapon_case_spu(self, only_update: bool = None):
+    def gem_weapon_case_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
         """
         武器箱
          -可解析： 类型，品质，类别
@@ -991,11 +1048,13 @@ class Spider:
             # 检查是否插入了重复数据
             self.mongo.check_duplicate_hash_name(self.gem_weapon_case_spu)
 
+        ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
+
         # 查询并更新收藏品
-        self.update_spu_item_set(query)
+        self.update_spu_item_set(query, ignore_breakpoint)
 
     @bind_tag("Type_CustomPlayer")
-    def gem_custom_player_spu(self, only_update: bool = None):
+    def gem_custom_player_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
         """
         探员
          -可解析： 类型，品质，类别
@@ -1042,8 +1101,10 @@ class Spider:
             # 检查是否插入了重复数据
             self.mongo.check_duplicate_hash_name(self.gem_custom_player_spu)
 
+        ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
+
         # 查询并更新收藏品
-        self.update_spu_item_set(query)
+        self.update_spu_item_set(query, ignore_breakpoint)
 
     @bind_tag("CSGO_Type_Knife")
     def gem_knife_spu(self, only_update: bool = None):
@@ -1093,7 +1154,7 @@ class Spider:
             self.mongo.check_duplicate_hash_name(self.gem_knife_spu)
 
     @bind_tag("CSGO_Tool_Sticker")
-    def gem_sticker_spu(self, only_update: bool = None):
+    def gem_sticker_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
         """
         印花
          -可解析： 类型，品质，类别
@@ -1140,20 +1201,22 @@ class Spider:
             # 检查是否插入了重复数据
             self.mongo.check_duplicate_hash_name(self.gem_sticker_spu)
 
+        ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
+
         # 更新印花收藏品
-        self.update_spu_sticker_capsule(query)
+        self.update_spu_sticker_capsule(query, ignore_breakpoint)
 
         # 更新印花类型
-        self.update_spu_sticker_category(query)
+        self.update_spu_sticker_category(query, ignore_breakpoint)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query)
+        self.update_spu_tournament(query, ignore_breakpoint)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query)
+        self.update_spu_tournament_team(query, ignore_breakpoint)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query)
+        self.update_spu_pro_player(query, ignore_breakpoint)
 
     @bind_tag("Type_Hands")
     def gem_hands_spu(self, only_update: bool = None):
@@ -1203,7 +1266,7 @@ class Spider:
             self.mongo.check_duplicate_hash_name(self.gem_hands_spu)
 
     @bind_tag("CSGO_Type_Spray")
-    def gem_spray_spu(self, only_update: bool = None):
+    def gem_spray_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
         """
         涂鸦
          -可解析： 类型，品质，类别
@@ -1250,23 +1313,25 @@ class Spider:
             # 检查是否插入了重复数据
             self.mongo.check_duplicate_hash_name(self.gem_spray_spu)
 
+        ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
+
         # 更新涂鸦收藏品
-        self.update_spu_spray_capsule(query)
+        self.update_spu_spray_capsule(query, ignore_breakpoint)
 
         # 更新涂鸦类型
-        self.update_spu_spray_category(query)
+        self.update_spu_spray_category(query, ignore_breakpoint)
 
         # 更新涂鸦颜色
-        self.update_spu_spray_color_category(query)
+        self.update_spu_spray_color_category(query, ignore_breakpoint)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query)
+        self.update_spu_tournament(query, ignore_breakpoint)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query)
+        self.update_spu_tournament_team(query, ignore_breakpoint)
 
     @bind_tag("CSGO_Tool_Patch")
-    def gem_patch_spu(self, only_update: bool = None):
+    def gem_patch_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
         """
         布章
          -可解析： 类型，品质，类别
@@ -1313,14 +1378,16 @@ class Spider:
             # 检查是否插入了重复数据
             self.mongo.check_duplicate_hash_name(self.gem_patch_spu)
 
+        ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
+
         # 更新布章收藏品
-        self.update_spu_patch_capsule(query)
+        self.update_spu_patch_capsule(query, ignore_breakpoint)
 
         # 更新布章类型
-        self.update_spu_patch_category(query)
+        self.update_spu_patch_category(query, ignore_breakpoint)
 
         # 更新战队
-        self.update_spu_tournament_team(query)
+        self.update_spu_tournament_team(query, ignore_breakpoint)
 
     @bind_tag("CSGO_Type_MusicKit")
     def gem_music_kit_spu(self, only_update: bool = None):
