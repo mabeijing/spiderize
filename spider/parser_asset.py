@@ -62,13 +62,18 @@ def parser_market_spu(market_spu_array: list[MarketSPU], spu_type: str, weapon: 
                 logger.warning(f"weapon length more 2 part => {asset_items}")
 
         if exterior:
-            asset_exterior = asset_items[1]
-            match = exterior_pattern.match(asset_exterior)
-            if match is None:
-                logger.error(f"weapon has no exterior => {asset_items}")
+            try:
+                asset_exterior = asset_items[1]
+            except Exception:
+                logger.error(f"无法解析外观 => {asset_items} 默认WearCategoryNA")
+                market_spu.query_item.exterior = "WearCategoryNA"
             else:
-                exterior_name: str = match.group(1)
-                exterior_tag = EXTERIOR_NAME_MAP.get(exterior_name)
-                if not exterior_tag:
-                    logger.warning(f"{exterior_name} 未能获取到对应的tag名字")
-                market_spu.query_item.exterior = exterior_tag if exterior_tag else exterior_name
+                match = exterior_pattern.match(asset_exterior)
+                if match is None:
+                    logger.error(f"weapon has no exterior => {asset_items}")
+                else:
+                    exterior_name: str = match.group(1)
+                    exterior_tag = EXTERIOR_NAME_MAP.get(exterior_name)
+                    if not exterior_tag:
+                        logger.warning(f"{exterior_name} 未能获取到对应的tag名字")
+                    market_spu.query_item.exterior = exterior_tag if exterior_tag else exterior_name
