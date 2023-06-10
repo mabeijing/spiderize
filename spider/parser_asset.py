@@ -39,7 +39,7 @@ def _parse_quality_and_rarity(market_spu: MarketSPU):
 
 
 def parser_market_spu(market_spu_array: list[MarketSPU], spu_type: str, weapon: bool, exterior: bool):
-    # 类别:Quality => 普通,纪念品,StatTrak™",★,★ StatTrak™", 都有，空表示普通
+    # 类别:Quality => 普通,纪念品,StatTrak™,★,★ StatTrak™, 都有，空表示普通
     # 品质:Rarity => 消费级，军规级，受限，工业级，普通级，保密，隐秘，高级，卓越。都有
     # 武器名:Weapon => P250...
     # 外观:Exterior => 久经沙场，崭新出厂
@@ -54,10 +54,11 @@ def parser_market_spu(market_spu_array: list[MarketSPU], spu_type: str, weapon: 
         asset_items: list[str] = [item.strip() for item in market_spu.name.split("|")]
 
         if weapon:
-            maybe_weapon_name: str = asset_items[0]
-            weapon_name = WEAPON_NAME_MAP.get(maybe_weapon_name, None)
+            weapon_may_quality: str = asset_items[0]
+            weapon_name = weapon_may_quality.split('（')[0].strip()
+            weapon_name_tag = WEAPON_NAME_MAP.get(weapon_name, None)
 
-            market_spu.query_item.weapon = weapon_name if weapon_name else maybe_weapon_name
+            market_spu.query_item.weapon = weapon_name_tag
             if len(asset_items) > 2:
                 logger.warning(f"weapon length more 2 part => {asset_items}")
 
@@ -72,13 +73,11 @@ def parser_market_spu(market_spu_array: list[MarketSPU], spu_type: str, weapon: 
                 if match is None:
                     logger.error(f"weapon has no exterior => {asset_items}")
                 else:
-                    exterior_name: str = match.group(1)
-                    exterior_array: list[str] = exterior_name.split('（')
-                    exterior: str = exterior_array[0].strip()
-                    exterior_tag = EXTERIOR_NAME_MAP.get(exterior)
+                    exterior_name: str = match.group(1).strip()
+                    exterior_tag = EXTERIOR_NAME_MAP.get(exterior_name)
                     if not exterior_tag:
-                        logger.warning(f"{exterior} 未能获取到对应的tag名字")
-                    market_spu.query_item.exterior = exterior_tag if exterior_tag else exterior
+                        logger.warning(f"{exterior_name} 未能获取到对应的tag名字")
+                    market_spu.query_item.exterior = exterior_tag if exterior_tag else exterior_name
 
 
 if __name__ == '__main__':

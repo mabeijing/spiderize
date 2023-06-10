@@ -4,8 +4,12 @@
 """
 
 import pymongo
+from bson.regex import Regex
 
-mongo_uri = "mongodb://root:example@localhost:27017"
+from spider.mapping import WEAPON_NAME_MAP
+from spider.models import MarketSPU
+
+mongo_uri = "mongodb://root:example@43.155.102.212:27017"
 
 client = pymongo.MongoClient(mongo_uri, connect=False)
 
@@ -54,6 +58,33 @@ def update_one():
     )
 
 
+def update_weapon_map_scripts():
+    # 武器，匕首，手套
+    db = client.get_database(mongo_db)
+    collection = db.get_collection(mongo_collection)
+
+    cursor = collection.find(
+        {
+            "query_item.type": "CSGO_Type_Knife",
+            "query_item.weapon": {"$regex": Regex("（纪念品）|（StatTrak™）|（★）|（★ StatTrak™）")}
+        }
+    )
+
+    market_spu_array: list[MarketSPU] = [MarketSPU.validate(item) for item in list(cursor)]
+
+    count = len(market_spu_array)
+    print(count)
+    for index, market_spu in enumerate(market_spu_array, start=1):
+        print(f"剩余{count - index} 个...")
+        new_name = market_spu.query_item.weapon.split('（')[0].strip()
+        name_tag = WEAPON_NAME_MAP.get(new_name)
+        query = {"hash_name": market_spu.hash_name}
+        updated = {
+            "$set": {"query_item.weapon": name_tag}
+        }
+        collection.update_one(query, updated)
+
+
 if __name__ == "__main__":
     # batch_update_item_set()
     # batch_update_tournament()
@@ -62,4 +93,4 @@ if __name__ == "__main__":
     # batch_reset_tournament()
     # batch_reset_tournament_team()
     # batch_reset_pro_player()
-    update_one()
+    update_weapon_map_scripts()
