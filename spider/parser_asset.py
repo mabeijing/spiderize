@@ -65,7 +65,7 @@ def parser_market_spu(market_spu_array: list[MarketSPU], spu_type: str, weapon: 
             try:
                 asset_exterior = asset_items[1]
             except Exception:
-                logger.error(f"无法解析外观 => {asset_items} 默认WearCategoryNA")
+                logger.warning(f"无法解析外观 => {asset_items} 默认WearCategoryNA")
                 market_spu.query_item.exterior = "WearCategoryNA"
             else:
                 match = exterior_pattern.match(asset_exterior)
