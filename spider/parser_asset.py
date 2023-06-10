@@ -73,7 +73,15 @@ def parser_market_spu(market_spu_array: list[MarketSPU], spu_type: str, weapon: 
                     logger.error(f"weapon has no exterior => {asset_items}")
                 else:
                     exterior_name: str = match.group(1)
-                    exterior_tag = EXTERIOR_NAME_MAP.get(exterior_name)
+                    exterior_array: list[str] = exterior_name.split('（')
+                    exterior: str = exterior_array[0].strip()
+                    exterior_tag = EXTERIOR_NAME_MAP.get(exterior)
                     if not exterior_tag:
-                        logger.warning(f"{exterior_name} 未能获取到对应的tag名字")
-                    market_spu.query_item.exterior = exterior_tag if exterior_tag else exterior_name
+                        logger.warning(f"{exterior} 未能获取到对应的tag名字")
+                    market_spu.query_item.exterior = exterior_tag if exterior_tag else exterior
+
+
+if __name__ == '__main__':
+    s = "CZ75"
+    p1 = s.split('（')
+    print(p1[0])
