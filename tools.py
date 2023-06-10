@@ -6,12 +6,11 @@
 import pymongo
 from bson.regex import Regex
 
+import settings
 from spider.mapping import WEAPON_NAME_MAP
 from spider.models import MarketSPU
 
-mongo_uri = "mongodb://root:example@43.155.102.212:27017"
-
-client = pymongo.MongoClient(mongo_uri, connect=False)
+client = pymongo.MongoClient(settings.MONGO_URI, connect=False)
 
 mongo_db = "steam_db"
 mongo_collection = "steam_spu"
