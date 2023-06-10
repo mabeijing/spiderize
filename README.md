@@ -48,7 +48,14 @@
    [2023-06-10 09:31:22,451] - [spiderize] - WARNING - 锦标赛Tournament：Tournament9 => 没有数据了。
    ```
 
-2. 更新一个种类的asset的时候，需要手工修改要更新的属性
-
+2. 使用首次，应该使用
+```python
+# 首次必须指定参数，如果重复同一个类型的爬取，ignore_breakpoint设置成false，用于断点
+from spider import Spider
+   
+if __name__ == '__main__':
+    spider = Spider()
+    spider.gem_weapon_pistol_spu(only_update=False, ignore_breakpoint=True)
+```
 
 

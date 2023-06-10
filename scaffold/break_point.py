@@ -10,27 +10,32 @@ from pydantic import BaseModel, fields
 
 import settings
 
+logger = settings.get_logger()
 
-class PointItem(BaseModel):
+
+class PointAssetItem(BaseModel):
+    # 记录每个item 查询 属性时的 游标信息，属性名字以及当前分页
     localized_key: str = fields.Field("")
     index: int = fields.Field(0)
 
 
+class PointItem(BaseModel):
+    index: int = fields.Field(0)  # 记录每个item获取数量的游标
+
+    item_set: PointAssetItem = fields.Field(PointAssetItem())
+    tournament: PointAssetItem = fields.Field(PointAssetItem())
+    tournament_team: PointAssetItem = fields.Field(PointAssetItem())
+    pro_player: PointAssetItem = fields.Field(PointAssetItem())
+    sticker_capsule: PointAssetItem = fields.Field(PointAssetItem())
+    sticker_category: PointAssetItem = fields.Field(PointAssetItem())
+    spray_capsule: PointAssetItem = fields.Field(PointAssetItem())
+    spray_category: PointAssetItem = fields.Field(PointAssetItem())
+    spray_color_category: PointAssetItem = fields.Field(PointAssetItem())
+    patch_capsule: PointAssetItem = fields.Field(PointAssetItem())
+    patch_category: PointAssetItem = fields.Field(PointAssetItem())
+
+
 class Point(BaseModel):
-    exterior: PointItem = fields.Field(PointItem())
-
-    item_set: PointItem = fields.Field(PointItem())
-    tournament: PointItem = fields.Field(PointItem())
-    tournament_team: PointItem = fields.Field(PointItem())
-    pro_player: PointItem = fields.Field(PointItem())
-    sticker_capsule: PointItem = fields.Field(PointItem())
-    sticker_category: PointItem = fields.Field(PointItem())
-    spray_capsule: PointItem = fields.Field(PointItem())
-    spray_category: PointItem = fields.Field(PointItem())
-    spray_color_category: PointItem = fields.Field(PointItem())
-    patch_capsule: PointItem = fields.Field(PointItem())
-    patch_category: PointItem = fields.Field(PointItem())
-
     csgo_type_pistol: PointItem = fields.Field(PointItem())
     csgo_type_smg: PointItem = fields.Field(PointItem())
     csgo_type_rifle: PointItem = fields.Field(PointItem())
@@ -51,6 +56,14 @@ class Point(BaseModel):
     csgo_type_gift: PointItem = fields.Field(PointItem())
     csgo_type_name_tag: PointItem = fields.Field(PointItem())
     csgo_type_tool: PointItem = fields.Field(PointItem())
+
+    def get_current_point_item(self, type_name: str) -> PointItem:
+        point_item: PointItem = getattr(self, type_name, None)
+        if point_item is None:
+            logger.error(f"传递的{type_name} 不是Point的有效属性，请检查。。。")
+            exit()
+
+        return point_item
 
 
 class Cursor:
@@ -90,4 +103,7 @@ class Cursor:
 
 
 if __name__ == '__main__':
-    pass
+    cursor = Cursor()
+    p = cursor.current_point.item_set
+    point: PointItem = getattr(cursor.current_point, 'item_set', None)
+    print(point)

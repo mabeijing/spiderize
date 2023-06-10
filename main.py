@@ -2,4 +2,8 @@ from spider import Spider
 
 if __name__ == '__main__':
     spider = Spider()
-    spider.gem_knife_spu(only_update=False)
+    # 探员
+    # spider.gem_custom_player_spu(only_update=True, ignore_breakpoint=True)
+
+    # 涂鸦
+    spider.gem_spray_spu(only_update=False, ignore_breakpoint=True)

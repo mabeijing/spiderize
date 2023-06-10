@@ -73,14 +73,15 @@ class Spider:
             exit(500)
 
     # 收藏品 => 武器，武器箱，探员
-    def update_spu_item_set(self, query: dict, ignore_breakpoint: bool):
+    def update_spu_item_set(self, query: dict, ignore_breakpoint: bool, func_tag: str):
         tags: list[str] = settings.get_sorted_resources("730_ItemSet.json")
 
         if ignore_breakpoint:
             tag_index = 0
         else:
             try:
-                tag_index: int = tags.index(self.cursor.current_point.item_set.localized_key)
+                func_point = self.cursor.current_point.get_current_point_item(func_tag)
+                tag_index: int = tags.index(func_point.item_set.localized_key)
                 logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
             except ValueError:
                 tag_index = 0
@@ -90,10 +91,10 @@ class Spider:
             logger.info(f"当前收藏品ItemSet => tag_{tag}, 剩余：{len(total_tags) - i} 待更新。")
             # 更新游标
             point = self.cursor.current_point
-            point.item_set.localized_key = tag
+            point.get_current_point_item(func_tag).item_set.localized_key = tag
             self.cursor.save(point)
 
-            index = self.cursor.current_point.item_set.index
+            index = self.cursor.current_point.get_current_point_item(func_tag).item_set.index
             while True:
                 self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_ItemSet[]": f"tag_{tag}"}
@@ -102,7 +103,7 @@ class Spider:
                 if not markets_spu_array:
                     logger.warning(f"收藏品ItemSet：{tag} => 没有数据了。")
                     point = self.cursor.current_point
-                    point.item_set.index = 0
+                    point.get_current_point_item(func_tag).item_set.index = 0
                     self.cursor.save(point)
                     break
 
@@ -110,28 +111,29 @@ class Spider:
                     markets_spu.query_item.item_set = tag
 
                 self.mongo.update_item_set(markets_spu_array)
-                index += self.count
 
                 # 更新游标
+                index += self.count
                 point = self.cursor.current_point
-                point.item_set.index = index
+                point.get_current_point_item(func_tag).item_set.index = index
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
                     point = self.cursor.current_point
-                    point.item_set.index = 0
+                    point.get_current_point_item(func_tag).item_set.index = 0
                     self.cursor.save(point)
                     break
 
     # 锦标赛 => 武器，涂鸦, 印花, 武器箱
-    def update_spu_tournament(self, query: dict, ignore_breakpoint: bool):
+    def update_spu_tournament(self, query: dict, ignore_breakpoint: bool, func_tag: str):
         tags: list[str] = settings.get_sorted_resources("730_Tournament.json")
 
         if ignore_breakpoint:
             tag_index = 0
         else:
             try:
-                tag_index: int = tags.index(self.cursor.current_point.tournament.localized_key)
+                func_point = self.cursor.current_point.get_current_point_item(func_tag)
+                tag_index: int = tags.index(func_point.tournament.localized_key)
                 logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
             except ValueError:
                 tag_index = 0
@@ -141,10 +143,10 @@ class Spider:
             logger.info(f"当前锦标赛Tournament => tag_{tag}, 剩余：{len(total_tags) - i} 待更新。")
             # 更新游标
             point = self.cursor.current_point
-            point.tournament.localized_key = tag
+            point.get_current_point_item(func_tag).tournament.localized_key = tag
             self.cursor.save(point)
 
-            index = self.cursor.current_point.tournament.index
+            index = self.cursor.current_point.get_current_point_item(func_tag).tournament.index
             while True:
                 self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_Tournament[]": f"tag_{tag}"}
@@ -153,7 +155,7 @@ class Spider:
                 if not markets_spu_array:
                     logger.warning(f"锦标赛Tournament：{tag} => 没有数据了。")
                     point = self.cursor.current_point
-                    point.tournament.index = 0
+                    point.get_current_point_item(func_tag).tournament.index = 0
                     self.cursor.save(point)
                     break
 
@@ -161,28 +163,29 @@ class Spider:
                     markets_spu.query_item.tournament = tag
 
                 self.mongo.update_tournament(markets_spu_array)
-                index += self.count
 
                 # 更新游标
+                index += self.count
                 point = self.cursor.current_point
-                point.tournament.index = index
+                point.get_current_point_item(func_tag).tournament.index = index
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
                     point = self.cursor.current_point
-                    point.tournament.index = 0
+                    point.get_current_point_item(func_tag).tournament.index = 0
                     self.cursor.save(point)
                     break
 
     # 战队 => 武器，印花，涂鸦，布章
-    def update_spu_tournament_team(self, query: dict, ignore_breakpoint: bool):
+    def update_spu_tournament_team(self, query: dict, ignore_breakpoint: bool, func_tag: str):
         tags: list[str] = settings.get_sorted_resources("730_TournamentTeam.json")
 
         if ignore_breakpoint:
             tag_index = 0
         else:
             try:
-                tag_index: int = tags.index(self.cursor.current_point.tournament_team.localized_key)
+                point = self.cursor.current_point.get_current_point_item(func_tag)
+                tag_index: int = tags.index(point.tournament_team.localized_key)
                 logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
             except ValueError:
                 tag_index = 0
@@ -192,10 +195,10 @@ class Spider:
             logger.info(f"当前战队TournamentTeam => tag_{tag}, 剩余：{len(total_tags) - i} 待更新。")
             # 更新游标
             point = self.cursor.current_point
-            point.tournament_team.localized_key = tag
+            point.get_current_point_item(func_tag).tournament_team.localized_key = tag
             self.cursor.save(point)
 
-            index = self.cursor.current_point.tournament_team.index
+            index = self.cursor.current_point.get_current_point_item(func_tag).tournament_team.index
             while True:
                 self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_TournamentTeam[]": f"tag_{tag}"}
@@ -204,7 +207,7 @@ class Spider:
                 if not markets_spu_array:
                     logger.warning(f"战队TournamentTeam：{tag} => 没有数据了。")
                     point = self.cursor.current_point
-                    point.tournament_team.index = 0
+                    point.get_current_point_item(func_tag).tournament_team.index = 0
                     self.cursor.save(point)
                     break
 
@@ -215,24 +218,25 @@ class Spider:
                 index += self.count
 
                 point = self.cursor.current_point
-                point.tournament_team.index = index
+                point.get_current_point_item(func_tag).tournament_team.index = index
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
                     point = self.cursor.current_point
-                    point.tournament_team.index = 0
+                    point.get_current_point_item(func_tag).tournament_team.index = 0
                     self.cursor.save(point)
                     break
 
     # 职业选手 => 武器，印花
-    def update_spu_pro_player(self, query: dict, ignore_breakpoint: bool):
+    def update_spu_pro_player(self, query: dict, ignore_breakpoint: bool, func_tag: str):
         tags: list[str] = settings.get_sorted_resources("730_ProPlayer.json")
 
         if ignore_breakpoint:
             tag_index = 0
         else:
             try:
-                tag_index: int = tags.index(self.cursor.current_point.pro_player.localized_key)
+                point = self.cursor.current_point.get_current_point_item(func_tag)
+                tag_index: int = tags.index(point.pro_player.localized_key)
                 logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
             except ValueError:
                 tag_index = 0
@@ -242,10 +246,10 @@ class Spider:
             logger.info(f"当前职业选手ProPlayer => tag_{tag}, 剩余：{len(total_tags) - i} 待更新。")
             # 更新游标
             point = self.cursor.current_point
-            point.pro_player.localized_key = tag
+            point.get_current_point_item(func_tag).pro_player.localized_key = tag
             self.cursor.save(point)
 
-            index = self.cursor.current_point.pro_player.index
+            index = self.cursor.current_point.get_current_point_item(func_tag).pro_player.index
             while True:
                 self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_ProPlayer[]": f"tag_{tag}"}
@@ -254,7 +258,7 @@ class Spider:
                 if not markets_spu_array:
                     logger.warning(f"职业选手ProPlayer：{tag} => 没有数据了。")
                     point = self.cursor.current_point
-                    point.pro_player.index = 0
+                    point.get_current_point_item(func_tag).pro_player.index = 0
                     self.cursor.save(point)
                     break
 
@@ -265,24 +269,25 @@ class Spider:
                 index += self.count
 
                 point = self.cursor.current_point
-                point.pro_player.index = index
+                point.get_current_point_item(func_tag).pro_player.index = index
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
                     point = self.cursor.current_point
-                    point.pro_player.index = 0
+                    point.get_current_point_item(func_tag).pro_player.index = 0
                     self.cursor.save(point)
                     break
 
     # 印花收藏品 => 印花
-    def update_spu_sticker_capsule(self, query: dict, ignore_breakpoint: bool):
+    def update_spu_sticker_capsule(self, query: dict, ignore_breakpoint: bool, func_tag: str):
         tags: list[str] = settings.get_sorted_resources("730_StickerCapsule.json")
 
         if ignore_breakpoint:
             tag_index = 0
         else:
             try:
-                tag_index: int = tags.index(self.cursor.current_point.sticker_capsule.localized_key)
+                point = self.cursor.current_point.get_current_point_item(func_tag)
+                tag_index: int = tags.index(point.sticker_capsule.localized_key)
                 logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
             except ValueError:
                 tag_index = 0
@@ -292,10 +297,10 @@ class Spider:
             logger.info(f"当前印花收藏品StickerCapsule => tag_{tag}, 剩余：{len(total_tags) - i} 待更新。")
             # 更新游标
             point = self.cursor.current_point
-            point.sticker_capsule.localized_key = tag
+            point.get_current_point_item(func_tag).sticker_capsule.localized_key = tag
             self.cursor.save(point)
 
-            index = self.cursor.current_point.sticker_capsule.index
+            index = self.cursor.current_point.get_current_point_item(func_tag).sticker_capsule.index
             while True:
                 self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_StickerCapsule[]": f"tag_{tag}"}
@@ -304,7 +309,7 @@ class Spider:
                 if not markets_spu_array:
                     logger.warning(f"印花收藏品StickerCapsule：{tag} => 没有数据了。")
                     point = self.cursor.current_point
-                    point.sticker_capsule.index = 0
+                    point.get_current_point_item(func_tag).sticker_capsule.index = 0
                     self.cursor.save(point)
                     break
 
@@ -315,24 +320,25 @@ class Spider:
                 index += self.count
 
                 point = self.cursor.current_point
-                point.sticker_capsule.index = index
+                point.get_current_point_item(func_tag).sticker_capsule.index = index
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
                     point = self.cursor.current_point
-                    point.sticker_capsule.index = 0
+                    point.get_current_point_item(func_tag).sticker_capsule.index = 0
                     self.cursor.save(point)
                     break
 
     # 印花类型 => 印花
-    def update_spu_sticker_category(self, query: dict, ignore_breakpoint: bool):
+    def update_spu_sticker_category(self, query: dict, ignore_breakpoint: bool, func_tag: str):
         tags: list[str] = settings.get_sorted_resources("730_StickerCategory.json")
 
         if ignore_breakpoint:
             tag_index = 0
         else:
             try:
-                tag_index: int = tags.index(self.cursor.current_point.sticker_category.localized_key)
+                point = self.cursor.current_point.get_current_point_item(func_tag)
+                tag_index: int = tags.index(point.sticker_category.localized_key)
                 logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
             except ValueError:
                 tag_index = 0
@@ -342,10 +348,10 @@ class Spider:
             logger.info(f"当前印花类型StickerCategory => tag_{tag}, 剩余：{len(total_tags) - i} 待更新。")
             # 更新游标
             point = self.cursor.current_point
-            point.sticker_category.localized_key = tag
+            point.get_current_point_item(func_tag).sticker_category.localized_key = tag
             self.cursor.save(point)
 
-            index = self.cursor.current_point.sticker_category.index
+            index = self.cursor.current_point.get_current_point_item(func_tag).sticker_category.index
             while True:
                 self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_StickerCategory[]": f"tag_{tag}"}
@@ -354,7 +360,7 @@ class Spider:
                 if not markets_spu_array:
                     logger.warning(f"印花类型StickerCategory：{tag} => 没有数据了。")
                     point = self.cursor.current_point
-                    point.sticker_category.index = 0
+                    point.get_current_point_item(func_tag).sticker_category.index = 0
                     self.cursor.save(point)
                     break
 
@@ -365,24 +371,25 @@ class Spider:
                 index += self.count
 
                 point = self.cursor.current_point
-                point.sticker_category.index = index
+                point.get_current_point_item(func_tag).sticker_category.index = index
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
                     point = self.cursor.current_point
-                    point.sticker_category.index = 0
+                    point.get_current_point_item(func_tag).sticker_category.index = 0
                     self.cursor.save(point)
                     break
 
     # 涂鸦收藏品 => 涂鸦
-    def update_spu_spray_capsule(self, query: dict, ignore_breakpoint: bool):
+    def update_spu_spray_capsule(self, query: dict, ignore_breakpoint: bool, func_tag: str):
         tags: list[str] = settings.get_sorted_resources("730_StickerCategory.json")
 
         if ignore_breakpoint:
             tag_index = 0
         else:
             try:
-                tag_index: int = tags.index(self.cursor.current_point.spray_capsule.localized_key)
+                point = self.cursor.current_point.get_current_point_item(func_tag)
+                tag_index: int = tags.index(point.spray_capsule.localized_key)
                 logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
             except ValueError:
                 tag_index = 0
@@ -392,10 +399,10 @@ class Spider:
             logger.info(f"当前涂鸦收藏品SprayCapsule => tag_{tag}, 剩余：{len(total_tags) - i} 待更新。")
             # 更新游标
             point = self.cursor.current_point
-            point.spray_capsule.localized_key = tag
+            point.get_current_point_item(func_tag).spray_capsule.localized_key = tag
             self.cursor.save(point)
 
-            index = self.cursor.current_point.spray_capsule.index
+            index = self.cursor.current_point.get_current_point_item(func_tag).spray_capsule.index
             while True:
                 self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_SprayCapsule[]": f"tag_{tag}"}
@@ -404,7 +411,7 @@ class Spider:
                 if not markets_spu_array:
                     logger.warning(f"涂鸦收藏品SprayCapsule：{tag} => 没有数据了。")
                     point = self.cursor.current_point
-                    point.spray_capsule.index = 0
+                    point.get_current_point_item(func_tag).spray_capsule.index = 0
                     self.cursor.save(point)
                     break
 
@@ -415,24 +422,25 @@ class Spider:
                 index += self.count
 
                 point = self.cursor.current_point
-                point.spray_capsule.index = index
+                point.get_current_point_item(func_tag).spray_capsule.index = index
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
                     point = self.cursor.current_point
-                    point.spray_capsule.index = 0
+                    point.get_current_point_item(func_tag).spray_capsule.index = 0
                     self.cursor.save(point)
                     break
 
     # 涂鸦类型 => 涂鸦
-    def update_spu_spray_category(self, query: dict, ignore_breakpoint: bool):
+    def update_spu_spray_category(self, query: dict, ignore_breakpoint: bool, func_tag: str):
         tags: list[str] = settings.get_sorted_resources("730_StickerCategory.json")
 
         if ignore_breakpoint:
             tag_index = 0
         else:
             try:
-                tag_index: int = tags.index(self.cursor.current_point.spray_category.localized_key)
+                point = self.cursor.current_point.get_current_point_item(func_tag)
+                tag_index: int = tags.index(point.spray_category.localized_key)
                 logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
             except ValueError:
                 tag_index = 0
@@ -442,10 +450,10 @@ class Spider:
             logger.info(f"当前涂鸦类型SprayCategory => tag_{tag}, 剩余：{len(total_tags) - i} 待更新。")
             # 更新游标
             point = self.cursor.current_point
-            point.spray_category.localized_key = tag
+            point.get_current_point_item(func_tag).sticker_category.localized_key = tag
             self.cursor.save(point)
 
-            index = self.cursor.current_point.spray_category.index
+            index = self.cursor.current_point.get_current_point_item(func_tag).spray_category.index
             while True:
                 self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_SprayCategory[]": f"tag_{tag}"}
@@ -454,7 +462,7 @@ class Spider:
                 if not markets_spu_array:
                     logger.warning(f"涂鸦类型SprayCategory：{tag} => 没有数据了。")
                     point = self.cursor.current_point
-                    point.spray_category.index = 0
+                    point.get_current_point_item(func_tag).spray_category.index = 0
                     self.cursor.save(point)
                     break
 
@@ -465,24 +473,25 @@ class Spider:
                 index += self.count
 
                 point = self.cursor.current_point
-                point.spray_category.index = index
+                point.get_current_point_item(func_tag).spray_category.index = index
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
                     point = self.cursor.current_point
-                    point.spray_category.index = 0
+                    point.get_current_point_item(func_tag).spray_category.index = 0
                     self.cursor.save(point)
                     break
 
     # 涂鸦颜色 => 涂鸦
-    def update_spu_spray_color_category(self, query: dict, ignore_breakpoint: bool):
+    def update_spu_spray_color_category(self, query: dict, ignore_breakpoint: bool, func_tag: str):
         tags: list[str] = settings.get_sorted_resources("730_SprayColorCategory.json")
 
         if ignore_breakpoint:
             tag_index = 0
         else:
             try:
-                tag_index: int = tags.index(self.cursor.current_point.spray_color_category.localized_key)
+                point = self.cursor.current_point.get_current_point_item(func_tag)
+                tag_index: int = tags.index(point.spray_color_category.localized_key)
                 logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
             except ValueError:
                 tag_index = 0
@@ -492,10 +501,10 @@ class Spider:
             logger.info(f"当前涂鸦颜色SprayColorCategory => tag_{tag}, 剩余：{len(total_tags) - i} 待更新。")
             # 更新游标
             point = self.cursor.current_point
-            point.spray_color_category.localized_key = tag
+            point.get_current_point_item(func_tag).spray_color_category.localized_key = tag
             self.cursor.save(point)
 
-            index = self.cursor.current_point.spray_color_category.index
+            index = self.cursor.current_point.get_current_point_item(func_tag).spray_color_category.index
             while True:
                 self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_SprayColorCategory[]": f"tag_{tag}"}
@@ -504,7 +513,7 @@ class Spider:
                 if not markets_spu_array:
                     logger.warning(f"涂鸦颜色SprayColorCategory：{tag} => 没有数据了。")
                     point = self.cursor.current_point
-                    point.spray_color_category.index = 0
+                    point.get_current_point_item(func_tag).spray_color_category.index = 0
                     self.cursor.save(point)
                     break
 
@@ -515,24 +524,25 @@ class Spider:
                 index += self.count
 
                 point = self.cursor.current_point
-                point.spray_color_category.index = index
+                point.get_current_point_item(func_tag).spray_color_category.index = index
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
                     point = self.cursor.current_point
-                    point.spray_color_category.index = 0
+                    point.get_current_point_item(func_tag).spray_color_category.index = 0
                     self.cursor.save(point)
                     break
 
     # 布章收藏品 => 布章
-    def update_spu_patch_capsule(self, query: dict, ignore_breakpoint: bool):
+    def update_spu_patch_capsule(self, query: dict, ignore_breakpoint: bool, func_tag: str):
         tags: list[str] = settings.get_sorted_resources("730_PatchCapsule.json")
 
         if ignore_breakpoint:
             tag_index = 0
         else:
             try:
-                tag_index: int = tags.index(self.cursor.current_point.patch_capsule.localized_key)
+                point = self.cursor.current_point.get_current_point_item(func_tag)
+                tag_index: int = tags.index(point.patch_capsule.localized_key)
                 logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
             except ValueError:
                 tag_index = 0
@@ -542,10 +552,10 @@ class Spider:
             logger.info(f"当前布章收藏品PatchCapsule => tag_{tag}, 剩余：{len(total_tags) - i} 待更新。")
             # 更新游标
             point = self.cursor.current_point
-            point.patch_capsule.localized_key = tag
+            point.get_current_point_item(func_tag).patch_capsule.localized_key = tag
             self.cursor.save(point)
 
-            index = self.cursor.current_point.patch_capsule.index
+            index = self.cursor.current_point.get_current_point_item(func_tag).patch_capsule.index
             while True:
                 self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_PatchCapsule[]": f"tag_{tag}"}
@@ -554,7 +564,7 @@ class Spider:
                 if not markets_spu_array:
                     logger.warning(f"布章收藏品PatchCapsule：{tag} => 没有数据了。")
                     point = self.cursor.current_point
-                    point.patch_capsule.index = 0
+                    point.get_current_point_item(func_tag).patch_capsule.index = 0
                     self.cursor.save(point)
                     break
 
@@ -565,24 +575,25 @@ class Spider:
                 index += self.count
 
                 point = self.cursor.current_point
-                point.patch_capsule.index = index
+                point.get_current_point_item(func_tag).patch_capsule.index = index
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
                     point = self.cursor.current_point
-                    point.patch_capsule.index = 0
+                    point.get_current_point_item(func_tag).patch_capsule.index = 0
                     self.cursor.save(point)
                     break
 
     # 布章类型 => 布章
-    def update_spu_patch_category(self, query: dict, ignore_breakpoint: bool):
+    def update_spu_patch_category(self, query: dict, ignore_breakpoint: bool, func_tag: str):
         tags: list[str] = settings.get_sorted_resources("730_PatchCategory.json")
 
         if ignore_breakpoint:
             tag_index = 0
         else:
             try:
-                tag_index: int = tags.index(self.cursor.current_point.patch_category.localized_key)
+                point = self.cursor.current_point.get_current_point_item(func_tag)
+                tag_index: int = tags.index(point.patch_category.localized_key)
                 logger.info(f"断点执行,从第{tag_index}个，{tags[tag_index]}开始执行。")
             except ValueError:
                 tag_index = 0
@@ -592,10 +603,10 @@ class Spider:
             logger.info(f"当前布章类型PatchCategory => tag_{tag}, 剩余：{len(total_tags) - i} 待更新。")
             # 更新游标
             point = self.cursor.current_point
-            point.patch_category.localized_key = tag
+            point.get_current_point_item(func_tag).patch_category.localized_key = tag
             self.cursor.save(point)
 
-            index = self.cursor.current_point.patch_category.index
+            index = self.cursor.current_point.get_current_point_item(func_tag).patch_category.index
             while True:
                 self.counter = 0
                 params = {"start": index, "count": self.count, "category_730_PatchCategory[]": f"tag_{tag}"}
@@ -604,7 +615,7 @@ class Spider:
                 if not markets_spu_array:
                     logger.warning(f"布章类型PatchCategory：{tag} => 没有数据了。")
                     point = self.cursor.current_point
-                    point.patch_category.index = 0
+                    point.get_current_point_item(func_tag).patch_category.index = 0
                     self.cursor.save(point)
                     break
 
@@ -615,12 +626,12 @@ class Spider:
                 index += self.count
 
                 point = self.cursor.current_point
-                point.patch_category.index = index
+                point.get_current_point_item(func_tag).patch_category.index = index
                 self.cursor.save(point)
 
                 if len(markets_spu_array) < self.count:
                     point = self.cursor.current_point
-                    point.patch_category.index = 0
+                    point.get_current_point_item(func_tag).patch_category.index = 0
                     self.cursor.save(point)
                     break
 
@@ -631,6 +642,7 @@ class Spider:
          -可解析： 类型，品质，类别，武器名，外观
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
+        point_tag_name = "csgo_type_pistol"
         query: dict = self.base_query(self.gem_weapon_pistol_spu)
         logger.info(f"query => {query}")
 
@@ -677,16 +689,20 @@ class Spider:
         ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
 
         # 查询并更新收藏品
-        self.update_spu_item_set(query, ignore_breakpoint)
+        """
+        执行前，获取到point.csgo_type_pistol.item_set
+        """
+
+        self.update_spu_item_set(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query, ignore_breakpoint)
+        self.update_spu_tournament(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query, ignore_breakpoint)
+        self.update_spu_tournament_team(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query, ignore_breakpoint)
+        self.update_spu_pro_player(query, ignore_breakpoint, point_tag_name)
 
     @bind_tag("CSGO_Type_SMG")
     def gem_weapon_smg_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
@@ -695,6 +711,7 @@ class Spider:
          -可解析： 类型，品质，类别，武器名，外观
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
+        point_tag_name = "csgo_type_smg"
         query: dict = self.base_query(self.gem_weapon_smg_spu)
         logger.info(f"query => {query}")
 
@@ -739,16 +756,16 @@ class Spider:
         ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
 
         # 查询并更新收藏品
-        self.update_spu_item_set(query, ignore_breakpoint)
+        self.update_spu_item_set(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query, ignore_breakpoint)
+        self.update_spu_tournament(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query, ignore_breakpoint)
+        self.update_spu_tournament_team(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query, ignore_breakpoint)
+        self.update_spu_pro_player(query, ignore_breakpoint, point_tag_name)
 
     @bind_tag("CSGO_Type_Rifle")
     def gem_weapon_rifle_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
@@ -757,6 +774,7 @@ class Spider:
          -可解析： 类型，品质，类别，武器名，外观
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
+        point_tag_name = "csgo_type_rifle"
         query: dict = self.base_query(self.gem_weapon_rifle_spu)
         logger.info(f"query => {query}")
 
@@ -803,16 +821,16 @@ class Spider:
         ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
 
         # 查询并更新收藏品
-        self.update_spu_item_set(query, ignore_breakpoint)
+        self.update_spu_item_set(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query, ignore_breakpoint)
+        self.update_spu_tournament(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query, ignore_breakpoint)
+        self.update_spu_tournament_team(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query, ignore_breakpoint)
+        self.update_spu_pro_player(query, ignore_breakpoint, point_tag_name)
 
     @bind_tag("CSGO_Type_SniperRifle")
     def gem_weapon_sniper_rifle_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
@@ -821,6 +839,7 @@ class Spider:
          -可解析： 类型，品质，类别，武器名，外观
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
+        point_tag_name = "csgo_type_sniper_rifle"
         query: dict = self.base_query(self.gem_weapon_sniper_rifle_spu)
         logger.info(f"query => {query}")
 
@@ -865,16 +884,16 @@ class Spider:
         ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
 
         # 查询并更新收藏品
-        self.update_spu_item_set(query, ignore_breakpoint)
+        self.update_spu_item_set(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query, ignore_breakpoint)
+        self.update_spu_tournament(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query, ignore_breakpoint)
+        self.update_spu_tournament_team(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query, ignore_breakpoint)
+        self.update_spu_pro_player(query, ignore_breakpoint, point_tag_name)
 
     @bind_tag("CSGO_Type_Shotgun")
     def gem_weapon_shotgun_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
@@ -883,6 +902,7 @@ class Spider:
          -可解析： 类型，品质，类别，武器名，外观
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
+        point_tag_name = "csgo_type_shotgun"
         query: dict = self.base_query(self.gem_weapon_shotgun_spu)
         logger.info(f"query => {query}")
 
@@ -927,16 +947,16 @@ class Spider:
         ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
 
         # 查询并更新收藏品
-        self.update_spu_item_set(query, ignore_breakpoint)
+        self.update_spu_item_set(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query, ignore_breakpoint)
+        self.update_spu_tournament(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query, ignore_breakpoint)
+        self.update_spu_tournament_team(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query, ignore_breakpoint)
+        self.update_spu_pro_player(query, ignore_breakpoint, point_tag_name)
 
     @bind_tag("CSGO_Type_Machinegun")
     def gem_weapon_machinegun_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
@@ -945,6 +965,7 @@ class Spider:
          -可解析： 类型，品质，类别，武器名，外观
          -需查询： 收藏品，锦标赛，战队，职业选手
         """
+        point_tag_name = "csgo_type_machinegun"
         query: dict = self.base_query(self.gem_weapon_machinegun_spu)
         logger.info(f"query => {query}")
 
@@ -989,16 +1010,16 @@ class Spider:
         ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
 
         # 查询并更新收藏品
-        self.update_spu_item_set(query, ignore_breakpoint)
+        self.update_spu_item_set(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query, ignore_breakpoint)
+        self.update_spu_tournament(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query, ignore_breakpoint)
+        self.update_spu_tournament_team(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query, ignore_breakpoint)
+        self.update_spu_pro_player(query, ignore_breakpoint, point_tag_name)
 
     @bind_tag("CSGO_Type_WeaponCase")
     def gem_weapon_case_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
@@ -1007,6 +1028,7 @@ class Spider:
          -可解析： 类型，品质，类别
          -需查询： 收藏品
         """
+        point_tag_name = "csgo_type_weapon_case"
         query: dict = self.base_query(self.gem_weapon_case_spu)
         logger.info(f"query => {query}")
 
@@ -1051,7 +1073,7 @@ class Spider:
         ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
 
         # 查询并更新收藏品
-        self.update_spu_item_set(query, ignore_breakpoint)
+        self.update_spu_item_set(query, ignore_breakpoint, point_tag_name)
 
     @bind_tag("Type_CustomPlayer")
     def gem_custom_player_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
@@ -1060,6 +1082,7 @@ class Spider:
          -可解析： 类型，品质，类别
          -需查询： 收藏品
         """
+        point_tag_name = "csgo_type_custom_player"
         query: dict = self.base_query(self.gem_custom_player_spu)
         logger.info(f"query => {query}")
 
@@ -1104,7 +1127,7 @@ class Spider:
         ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
 
         # 查询并更新收藏品
-        self.update_spu_item_set(query, ignore_breakpoint)
+        self.update_spu_item_set(query, ignore_breakpoint, point_tag_name)
 
     @bind_tag("CSGO_Type_Knife")
     def gem_knife_spu(self, only_update: bool = None):
@@ -1160,6 +1183,7 @@ class Spider:
          -可解析： 类型，品质，类别
          -需查询： 印花收藏品，印花类型，锦标赛，战队，职业选手
         """
+        point_tag_name = "csgo_type_sticker"
         query: dict = self.base_query(self.gem_sticker_spu)
         logger.info(f"query => {query}")
 
@@ -1204,19 +1228,19 @@ class Spider:
         ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
 
         # 更新印花收藏品
-        self.update_spu_sticker_capsule(query, ignore_breakpoint)
+        self.update_spu_sticker_capsule(query, ignore_breakpoint, point_tag_name)
 
         # 更新印花类型
-        self.update_spu_sticker_category(query, ignore_breakpoint)
+        self.update_spu_sticker_category(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query, ignore_breakpoint)
+        self.update_spu_tournament(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query, ignore_breakpoint)
+        self.update_spu_tournament_team(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新职业选手
-        self.update_spu_pro_player(query, ignore_breakpoint)
+        self.update_spu_pro_player(query, ignore_breakpoint, point_tag_name)
 
     @bind_tag("Type_Hands")
     def gem_hands_spu(self, only_update: bool = None):
@@ -1272,6 +1296,7 @@ class Spider:
          -可解析： 类型，品质，类别
          -需查询： 涂鸦收藏品，涂鸦类型，涂鸦颜色，锦标赛，战队
         """
+        point_tag_name = "csgo_type_spray"
         query: dict = self.base_query(self.gem_spray_spu)
         logger.info(f"query => {query}")
 
@@ -1316,19 +1341,19 @@ class Spider:
         ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
 
         # 更新涂鸦收藏品
-        self.update_spu_spray_capsule(query, ignore_breakpoint)
+        self.update_spu_spray_capsule(query, ignore_breakpoint, point_tag_name)
 
         # 更新涂鸦类型
-        self.update_spu_spray_category(query, ignore_breakpoint)
+        self.update_spu_spray_category(query, ignore_breakpoint, point_tag_name)
 
         # 更新涂鸦颜色
-        self.update_spu_spray_color_category(query, ignore_breakpoint)
+        self.update_spu_spray_color_category(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新锦标赛
-        self.update_spu_tournament(query, ignore_breakpoint)
+        self.update_spu_tournament(query, ignore_breakpoint, point_tag_name)
 
         # 查询并更新战队
-        self.update_spu_tournament_team(query, ignore_breakpoint)
+        self.update_spu_tournament_team(query, ignore_breakpoint, point_tag_name)
 
     @bind_tag("CSGO_Tool_Patch")
     def gem_patch_spu(self, only_update: bool = None, ignore_breakpoint: bool = None):
@@ -1337,6 +1362,7 @@ class Spider:
          -可解析： 类型，品质，类别
          -需查询： 布章收藏品，布章类型， 战队
         """
+        point_tag_name = "csgo_type_patch"
         query: dict = self.base_query(self.gem_patch_spu)
         logger.info(f"query => {query}")
 
@@ -1381,13 +1407,13 @@ class Spider:
         ignore_breakpoint: bool = ignore_breakpoint if ignore_breakpoint is not None else self.ignore_breakpoint
 
         # 更新布章收藏品
-        self.update_spu_patch_capsule(query, ignore_breakpoint)
+        self.update_spu_patch_capsule(query, ignore_breakpoint, point_tag_name)
 
         # 更新布章类型
-        self.update_spu_patch_category(query, ignore_breakpoint)
+        self.update_spu_patch_category(query, ignore_breakpoint, point_tag_name)
 
         # 更新战队
-        self.update_spu_tournament_team(query, ignore_breakpoint)
+        self.update_spu_tournament_team(query, ignore_breakpoint, point_tag_name)
 
     @bind_tag("CSGO_Type_MusicKit")
     def gem_music_kit_spu(self, only_update: bool = None):
