@@ -10,6 +10,7 @@ from spider.mongo_db import MongoDB
 from spider.parser_asset import parser_market_spu
 from spider.mapping import SUPPORT_ASSET_MAP
 from scaffold.break_point import Cursor
+from scaffold.convert import ConvertTools
 from scaffold.update_basic_resources import init_basic_resources
 
 logger = settings.get_logger()
@@ -32,10 +33,11 @@ class Spider:
         init_basic_resources()
         self.session = requests.Session()
         self.mongo = MongoDB()
-        self.counter: int = 0
+        self.convert_tools = ConvertTools(self.mongo.client)
         self.cursor: Cursor = Cursor()
         self.only_update: bool = only_update
         self.ignore_breakpoint: bool = ignore_breakpoint
+        self.counter: int = 0
         self.count: int = settings.COUNT
         self._init_session()
 

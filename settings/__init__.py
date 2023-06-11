@@ -24,6 +24,9 @@ CACHE_NAME = '.cache'
 # 更新基础数据 用于判断是否需要更新
 BASIC_RESOURCES = '_basic_730_resources.json'
 
+# 数据映射, 用于生成武器名映射
+WEAPON_MAP_NAME = '.weapon_map.json'
+
 # 基础数据更新时间 默认不更新， 如要更新EXPIRE_TIME = 7 * 24 * 60 * 60
 EXPIRE_TIME = None
 
@@ -39,7 +42,7 @@ PROXY_POOL = {'http': 'http://proxy.vmware.com:3128', 'https': 'http://proxy.vmw
 DELAY_TIME = 300
 
 # 每次请求服务器，间隔时间
-REQUEST_INTERVAL = 1
+REQUEST_INTERVAL = 0
 
 # 每次获取数据量， 目前最大100，超过100不生效
 COUNT = 100

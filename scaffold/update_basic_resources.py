@@ -82,6 +82,17 @@ def init_basic_resources():
     # 更新
     update_after_expire(basic_resources)
 
+    # 创建WEAPON_MAP
+    weapon_tag_map: dict[str, dict] = json.loads(settings.RESOURCES.joinpath("730_Weapon.json").read_bytes())['tags']
+
+    weapon_map: dict[str, str] = {}
+    for weapon_tag, tag_map in weapon_tag_map.items():
+        localized_name: str = tag_map.get("localized_name")
+        weapon_map[localized_name] = weapon_tag
+
+    with open(settings.RESOURCES.joinpath(settings.WEAPON_MAP_NAME), mode="w", encoding="utf-8") as f:
+        f.write(json.dumps(weapon_map, ensure_ascii=False, indent=2))
+
 
 if __name__ == '__main__':
     init_basic_resources()

@@ -64,7 +64,7 @@ def update_weapon_map_scripts():
 
     cursor = collection.find(
         {
-            "query_item.type": "CSGO_Type_Knife",
+            "query_item.type": "CSGO_Type_SniperRifle",
             "query_item.weapon": {"$regex": Regex("（纪念品）|（StatTrak™）|（★）|（★ StatTrak™）")}
         }
     )
@@ -73,15 +73,16 @@ def update_weapon_map_scripts():
 
     count = len(market_spu_array)
     print(count)
-    for index, market_spu in enumerate(market_spu_array, start=1):
-        print(f"剩余{count - index} 个...")
-        new_name = market_spu.query_item.weapon.split('（')[0].strip()
-        name_tag = WEAPON_NAME_MAP.get(new_name)
-        query = {"hash_name": market_spu.hash_name}
-        updated = {
-            "$set": {"query_item.weapon": name_tag}
-        }
-        collection.update_one(query, updated)
+
+    # for index, market_spu in enumerate(market_spu_array, start=1):
+    #     print(f"剩余{count - index} 个...")
+    #     new_name = market_spu.query_item.weapon.split('（')[0].strip()
+    #     name_tag = WEAPON_NAME_MAP.get(new_name)
+    #     query = {"hash_name": market_spu.hash_name}
+    #     updated = {
+    #         "$set": {"query_item.weapon": name_tag}
+    #     }
+    #     collection.update_one(query, updated)
 
 
 if __name__ == "__main__":
