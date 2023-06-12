@@ -12,3 +12,4 @@ if __name__ == '__main__':
     # spider.gem_weapon_machinegun_spu(only_update=False, ignore_breakpoint=True)
 
     # spider.gem_weapon_smg_spu(only_update=False, ignore_breakpoint=True)
+    spider.convert_tools.update_goods_spu()

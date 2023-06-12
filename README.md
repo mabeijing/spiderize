@@ -35,7 +35,14 @@
        spider.gem_weapon_pistol_spu()
    ```
 
-   
+3. 如果是将mongo数据同步到mysql
+```python
+from spider import Spider
+
+if __name__ == '__main__':
+    spider = Spider()
+    spider.convert_tools.update_goods_spu()
+```
 
 当前问题
 
